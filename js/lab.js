@@ -7,8 +7,9 @@ let run = null;   // {i, answers:[], prac:{...}}
 function root(){ return document.getElementById('labRoot'); }
 function C(){ return window.LAB_CONTENT; }
 function demoBanner(){
-  return C().status === 'reviewed' ? '' :
-    `<div class="lab-flag" role="note"><b>Demonstration content.</b> These challenge slots are waiting for questions from the clinical review panel. They are not validated clinical teaching.</div>`;
+  if(C().status === 'reviewed') return '';
+  if(C().status === 'draft') return `<div class="lab-flag" role="note"><b>Draft content, pending clinical review.</b> These challenges are written for the demo and have not yet been approved by the review panel.</div>`;
+  return `<div class="lab-flag" role="note"><b>Demonstration content.</b> These challenge slots are waiting for questions from the clinical review panel. They are not validated clinical teaching.</div>`;
 }
 function progressDots(){
   const total = C().challenges.length + 1;
