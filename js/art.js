@@ -87,7 +87,7 @@ const ICON = {
   bolt:'M9 1 3 9h4l-1 6 6-8H8z', star:'M8 1l2 5h5l-4 3 2 6-5-4-5 4 2-6-4-3h5z',
   wave:'M1 6c2-2 4 2 7 0s5-2 7 0v3c-2-2-4 2-7 0S3 7 1 9zM1 11c2-2 4 2 7 0s5-2 7 0v2c-2-2-4 2-7 0s-5-2-7 0z',
   flask:'M6 1h4v1H9v4l5 8c0 1-1 1-1 1H3s-1 0-1-1l5-8V2H6z', chip:'M4 4h8v8H4zM6 6v4h4V6zM5 1h1v3H5zM10 1h1v3h-1zM5 12h1v3H5zM10 12h1v3h-1zM1 5h3v1H1zM1 10h3v1H1zM12 5h3v1h-3zM12 10h3v1h-3z',
-  spark:'M8 0l2 6 6 2-6 2-2 6-2-6-6-2 6-2z', lock:'M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7zm2 0h4V5a2 2 0 0 0-4 0z'
+  spark:'M8 0l2 6 6 2-6 2-2 6-2-6-6-2 6-2z', spine:'M6 1h4v2H6zM5 4h6v2H5zM6 7h4v2H6zM5 10h6v2H5zM6 13h4v2H6z', lock:'M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7zm2 0h4V5a2 2 0 0 0-4 0z'
 };
 const icon = (name, x, y, s, fill) => `<path d="${ICON[name] || ICON.plus}" transform="translate(${x},${y}) scale(${s})" fill="${fill}"/>`;
 
@@ -99,10 +99,10 @@ function building(b, st, gx, gy){
   o += tileTop(gx - .3, gy - .3, w + .6, d + .6, 'transparent', 0, 'class="hit"');
   if(!st.unlocked){
     o += tileTop(gx, gy, w, d, 'rgba(255,255,255,.18)', 0, 'stroke="rgba(255,255,255,.55)" stroke-dasharray="4 4"');
-    const h = 34 + (b.need || 1) * 4, T = [iso(gx, gy, h), iso(gx + w, gy, h), iso(gx + w, gy + d, h), iso(gx, gy + d, h)];
+    const h = 34 + (b.need.stage || 5) * 4, T = [iso(gx, gy, h), iso(gx + w, gy, h), iso(gx + w, gy + d, h), iso(gx, gy + d, h)];
     o += `<g class="ghost">${box(gx + .2, gy + .2, w - .4, d - .4, h, 'rgba(255,255,255,.10)', 'rgba(255,255,255,.08)', 'rgba(255,255,255,.05)', 0, 'rgba(255,255,255,.6)')}</g>`;
     o += `<g transform="translate(${cx - 13},${cy - h - 26})"><rect width="26" height="26" rx="8" fill="#173F31" stroke="#F2C75C" stroke-width="2"/>${icon('lock', 5, 5, 1, '#F2C75C')}</g>`;
-    o += `<text x="${cx}" y="${cy + 26}" class="plotlbl">${esc(b.need === 6 && b.needAll ? 'All stages' : 'Stage ' + b.need)}</text>`;
+    o += `<text x="${cx}" y="${cy + 26}" class="plotlbl">${esc(b.need.levels ? b.need.levels + ' level' : b.need.stage ? 'World ' + b.need.stage : 'All worlds')}</text>`;
     return o + '</g>';
   }
   if(!st.lvl){
@@ -205,7 +205,7 @@ function heroWorld(){
   o += `<g class="gem" transform="translate(${gx},${gy})"><circle r="26" fill="url(#gGlow)"/><polygon points="0,-14 11,-3 0,14 -11,-3" fill="#A9DCEB" stroke="#fff" stroke-width="2"/><polygon points="0,-14 11,-3 0,-1" fill="#d8f2fa"/></g>`;
   o += `<image id="joHeroImg" x="${iso(.2, 1.2)[0] - 16}" y="${iso(.2, 1.2)[1] - 42}" width="32" height="38"/></g>`;
   // left island: school/science hints (coming soon)
-  o += `<g class="float2">` + island(-12, 1, 3.2, 3.2, 40, '#a3d97a') + box(-11.5, 1.6, 1.6, 1.6, 30, '#6b4a9a', '#ece2f6', '#cdb8e6') + tree(-9.6, 3.6, .7, 'round') + `</g>`;
+  { const [rx, ry] = iso(-10.4, 2.6); o += `<g class="float2">` + island(-12, 1, 3.2, 3.2, 40, '#a3d97a') + tree(-11.4, 3.8, .6, 'pine') + `<g transform="translate(${rx},${ry})"><ellipse rx="16" ry="6" fill="rgba(0,0,0,.2)"/><path d="M0 -78c10 12 12 30 10 52H-10c-2-22 0-40 10-52z" fill="#f4f6f8" stroke="#3b4a5a" stroke-width="2"/><circle cy="-50" r="5" fill="#7fc5e6" stroke="#3b4a5a" stroke-width="1.5"/><path d="M-10 -30l-10 16 10-4zM10 -30l10 16-10-4z" fill="#DF755F"/><path class="flame" d="M-6 -24q6 22 12 0z" fill="#F2C75C"/></g></g>`; }
   // right island: future clinic glow
   o += `<g class="float3">` + island(7, -7, 3.4, 3.4, 44, '#8fd65a') + box(7.5, -6.5, 1.6, 1.6, 58, '#bfe9f5', 'url(#gGlass)', '#9fd3ea') + box(9.2, -6.2, 1, 1, 30, '#6cc2b8', '#e6f5f3', '#a7ddd6') + `</g>`;
   // foreground meadow and pines so the scene sits on land
@@ -239,6 +239,18 @@ function cardArt(kind){
     case 'physio':
       o += sky('#6cc4f5', '#eaf8ff') + mts('#a7bbd6') + hills('#8fd65a', '#5eb845');
       o += `<g transform="translate(160,92)"><circle r="40" fill="url(#gGlow)"/><rect x="-9" y="-28" width="18" height="56" rx="4" fill="#fff"/><rect x="-28" y="-9" width="56" height="18" rx="4" fill="#fff"/><rect x="-6" y="-25" width="12" height="50" rx="3" fill="#e3342f"/><rect x="-25" y="-6" width="50" height="12" rx="3" fill="#e3342f"/></g>`; break;
+    case 'rocket':
+      o += `<rect width="${W}" height="${H}" fill="#14204a"/>` + Array.from({length: 30}, (_, i) => `<circle cx="${(i * 89) % W}" cy="${(i * 47) % 120}" r="${i % 4 ? 1 : 1.8}" fill="#fff" opacity=".85"/>`).join('');
+      o += `<circle cx="262" cy="40" r="20" fill="#f2a98a"/><path d="M0 150 Q80 135 160 148 T320 140 V180 H0z" fill="#3b4a5a"/>`;
+      o += `<g transform="translate(150,150) rotate(18)"><path d="M0 -110c16 18 18 48 14 82H-14c-4-34-2-64 14-82z" fill="#f4f6f8" stroke="#0c2219" stroke-width="2.5"/><circle cy="-66" r="8" fill="#7fc5e6" stroke="#0c2219" stroke-width="2"/><path d="M-14 -40l-16 26 16-6zM14 -40l16 26-16-6z" fill="#DF755F" stroke="#0c2219" stroke-width="2"/><path class="flame" d="M-9 -28q9 40 18 0z" fill="#F2C75C"/><path d="M-5 -28q5 22 10 0z" fill="#fff"/></g>`;
+      o += `<path d="M120 172 q30 -26 60 0" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="10" stroke-linecap="round"/>`; break;
+    case 'ai-remote':
+      o += sky('#ffcf9a', '#fff1dc') + `<polygon points="-10,120 70,60 150,120" fill="#c9a37a"/><polygon points="120,120 210,50 300,120" fill="#b48a62"/>` + hills('#b9d77a', '#94c25a');
+      o += `<g transform="translate(70,128)"><rect x="-22" y="-26" width="44" height="26" fill="#f4e3c3" stroke="#7a4d2c" stroke-width="2"/><polygon points="-28,-26 0,-46 28,-26" fill="#c8452f"/><rect x="-5" y="-14" width="10" height="14" fill="#7a4d2c"/></g>`;
+      o += `<g transform="translate(140,134)"><rect x="-18" y="-20" width="36" height="20" fill="#f4e3c3" stroke="#7a4d2c" stroke-width="2"/><polygon points="-24,-20 0,-36 24,-20" fill="#e07a3a"/></g>`;
+      o += `<g transform="translate(232,140)"><rect x="-3" y="-90" width="6" height="90" fill="#3b4a5a"/><path d="M-16 -70h32M-12 -54h24" stroke="#3b4a5a" stroke-width="3"/><circle cy="-94" r="6" fill="#7fe3d2"/><circle class="pulse" cy="-94" r="16" fill="none" stroke="#7fe3d2" stroke-width="2"/><circle class="pulse" cy="-94" r="28" fill="none" stroke="#7fe3d2" stroke-width="1.5" opacity=".6"/></g>`;
+      o += `<g transform="translate(176,58)"><rect x="-16" y="-4" width="32" height="8" rx="4" fill="#173F31"/><circle cx="-18" cy="-6" r="6" fill="none" stroke="#173F31" stroke-width="2"/><circle cx="18" cy="-6" r="6" fill="none" stroke="#173F31" stroke-width="2"/><rect x="-5" y="4" width="10" height="8" rx="2" fill="#F2C75C"/></g>`;
+      o += `<rect x="96" y="150" width="34" height="18" fill="#2b4f7a" transform="skewX(-20)"/>`; break;
     case 'school':
       o += sky('#ffd6a5', '#fff4e3') + hills('#c9e48f', '#a9d06a');
       o += `<g transform="translate(110,60)"><rect width="100" height="70" rx="6" fill="#4a7bd0"/><rect x="8" y="8" width="40" height="54" fill="#fff"/><rect x="52" y="8" width="40" height="54" fill="#fdf6e3"/><rect x="14" y="18" width="28" height="4" fill="#9ab"/><rect x="14" y="28" width="22" height="4" fill="#9ab"/><rect x="58" y="18" width="28" height="4" fill="#9ab"/></g><g transform="translate(232,40) rotate(35)"><rect width="12" height="70" fill="#F2C75C"/><polygon points="0,70 12,70 6,84" fill="#e0a664"/></g>`; break;
@@ -261,25 +273,25 @@ function cardArt(kind){
 /* ---- futuristic smart clinic ---- */
 const FUTURE_PARTS = [
   {id:'land', stage:0, name:'Green campus and mountain valley'},
-  {id:'glass', stage:1, name:'Glass rehabilitation hall'},
-  {id:'sensors', stage:2, name:'Sensor-based assessment suite'},
-  {id:'ai', stage:3, name:'AI movement-analysis studio'},
-  {id:'neuro', stage:3, name:'Advanced neurological rehabilitation'},
-  {id:'gym', stage:4, name:'Smart rehabilitation gym'},
-  {id:'pool', stage:4, name:'Hydrotherapy pool'},
-  {id:'wear', stage:5, name:'Wearable technology bay'},
-  {id:'research', stage:5, name:'Research laboratory'},
-  {id:'robot', stage:6, name:'Robotic gait training'},
-  {id:'solar', stage:6, name:'Sustainable energy and roof gardens'}
+  {id:'glass', stage:1, name:'Glass rehabilitation hall (Upper Limb Hills)'},
+  {id:'sensors', stage:1, name:'Sensor-based assessment suite (Upper Limb Hills)'},
+  {id:'gym', stage:2, name:'Smart rehabilitation gym (Sports Ground)'},
+  {id:'pool', stage:2, name:'Hydrotherapy pool (Sports Ground)'},
+  {id:'ai', stage:3, name:'AI movement-analysis studio (Spine Canyon)'},
+  {id:'wear', stage:3, name:'Wearable technology bay (Spine Canyon)'},
+  {id:'neuro', stage:4, name:'Advanced neurological rehabilitation (Neuro Nights)'},
+  {id:'robot', stage:4, name:'Robotic gait training (Neuro Nights)'},
+  {id:'research', stage:5, name:'Research laboratory (build the Smart Clinic)'},
+  {id:'solar', stage:5, name:'Sustainable energy and roof gardens (build the Smart Clinic)'}
 ];
 function futureClinic(stagesDone, previewAll){
   const on = p => previewAll || stagesDone >= p.stage;
   const part = (p, solid, holo) => `<g class="fpart ${on(p) ? 'on' : 'holo'}" data-part="${p.id}">${on(p) ? solid : holo}</g>`;
   const ghost = (x, y, w, d, h, z0 = 0) => box(x, y, w, d, h, 'rgba(127,227,210,.10)', 'rgba(127,227,210,.07)', 'rgba(127,227,210,.05)', z0, 'rgba(127,227,210,.75)');
-  const tag = (x, y, z, n) => { const [X, Y] = iso(x, y, z); return `<g transform="translate(${X},${Y})"><rect x="-30" y="-11" width="60" height="20" rx="10" fill="rgba(15,46,51,.85)" stroke="#7fe3d2"/><text class="htag" y="3">STAGE ${n}</text></g>`; };
+  const tag = (x, y, z, n) => { const [X, Y] = iso(x, y, z); return `<g transform="translate(${X},${Y})"><rect x="${n > 4 ? -38 : -30}" y="-11" width="${n > 4 ? 76 : 60}" height="20" rx="10" fill="rgba(15,46,51,.85)" stroke="#7fe3d2"/><text class="htag" y="3">${n > 4 ? 'FINAL GOAL' : 'WORLD ' + n}</text></g>`; };
   const F = Object.fromEntries(FUTURE_PARTS.map(p => [p.id, p]));
   let o = `<svg class="futuremap" viewBox="-620 -360 1240 860" role="img" aria-label="Futuristic Smart Clinic">${DEFS}`;
-  o += `<rect x="-620" y="-360" width="1240" height="860" fill="${previewAll || stagesDone >= 6 ? 'url(#gSky)' : 'url(#gSkyDusk)'}"/>`;
+  o += `<rect x="-620" y="-360" width="1240" height="860" fill="${previewAll || stagesDone >= 5 ? 'url(#gSky)' : 'url(#gSkyDusk)'}"/>`;
   o += `<circle cx="-360" cy="-230" r="120" fill="url(#gSun)"/>`;
   o += mountains(-700, 700, 40, 240, ['#9fb3cf', '#7d93b4'], 6, 41) + mountains(-700, 700, 80, 170, ['#7f9cba', '#61809f'], 7, 53);
   o += `<path d="M-620 70 Q-300 44 0 66 T620 58 V500 H-620z" fill="#8fcf6a"/><path d="M-620 104 Q-200 82 120 100 T620 94 V500 H-620z" fill="#79c25a"/>`;
@@ -293,33 +305,33 @@ function futureClinic(stagesDone, previewAll){
     ghost(4, 1, 6, 4, 90) + tag(7, 3, 110, 1))});
   // sensor suite
   items.push({d: 6, s: part(F.sensors, box(0, 0, 3, 3, 46, '#4a4f9a', '#e7e9f6', '#c2c7e6') + [0, 1, 2].map(i => faceL(0, 0, 3, 3, 46, .1 + i * .3, .4, .28 + i * .3, .75, '#7fe3d2')).join('') + `<circle cx="${iso(1.5, 1.5, 60)[0]}" cy="${iso(1.5, 1.5, 60)[1]}" r="6" fill="#7fe3d2" class="pulse"/>`,
-    ghost(0, 0, 3, 3, 46) + tag(1.5, 1.5, 62, 2))});
+    ghost(0, 0, 3, 3, 46) + tag(1.5, 1.5, 62, 1))});
   // AI studio
   items.push({d: 22, s: part(F.ai, box(12, 0, 3, 3, 60, '#2b5d8f', '#e4eef7', '#b8cde3') + `<g transform="translate(${iso(13.5, 1.5, 78)[0]},${iso(13.5, 1.5, 78)[1]})"><circle r="16" fill="none" stroke="#7fe3d2" stroke-width="2" class="spin"/><circle r="6" fill="#7fe3d2"/></g>`,
     ghost(12, 0, 3, 3, 60) + tag(13.5, 1.5, 76, 3))});
   // neuro rehab
   items.push({d: 12, s: part(F.neuro, box(0, 5, 3, 3, 40, '#6b4a9a', '#ece2f6', '#cdb8e6') + faceL(0, 5, 3, 3, 40, .3, 0, .7, .5, '#a98ccf'),
-    ghost(0, 5, 3, 3, 40) + tag(1.5, 6.5, 54, 3))});
+    ghost(0, 5, 3, 3, 40) + tag(1.5, 6.5, 54, 4))});
   // smart gym
   items.push({d: 26, s: part(F.gym, box(12, 5, 4, 3, 36, '#c25e49', '#fbe2d9', '#efb9a6') + [0, 1, 2, 3].map(i => faceL(12, 5, 4, 3, 36, .05 + i * .24, .3, .2 + i * .24, .8, '#ffe9a6')).join(''),
-    ghost(12, 5, 4, 3, 36) + tag(14, 6.5, 50, 4))});
+    ghost(12, 5, 4, 3, 36) + tag(14, 6.5, 50, 2))});
   // pool
   items.push({d: 24, s: part(F.pool, tileTop(4, 8.5, 6, 3, '#e9eef0') + tileTop(4.4, 8.9, 5.2, 2.2, 'url(#gWater)', 0, 'class="pool"') + `<path d="M${iso(5, 9.6)[0]} ${iso(5, 9.6)[1]}q12 -5 24 0t24 0" stroke="#fff" fill="none" stroke-width="2" opacity=".8"/>`,
-    tileTop(4, 8.5, 6, 3, 'rgba(127,227,210,.08)', 0, 'stroke="#7fe3d2" stroke-dasharray="5 4"') + tag(7, 10, 16, 4))});
+    tileTop(4, 8.5, 6, 3, 'rgba(127,227,210,.08)', 0, 'stroke="#7fe3d2" stroke-dasharray="5 4"') + tag(7, 10, 16, 2))});
   // wearables bay
   items.push({d: 18, s: part(F.wear, box(0, 10, 3, 3, 30, '#2f7f86', '#e3f0ef', '#b9d6d3') + `<g transform="translate(${iso(1.5, 11.5, 44)[0]},${iso(1.5, 11.5, 44)[1]})"><rect x="-10" y="-6" width="20" height="12" rx="6" fill="#173F31" stroke="#7fe3d2" stroke-width="2"/><circle r="3" fill="#7fe3d2" class="pulse"/></g>`,
-    ghost(0, 10, 3, 3, 30) + tag(1.5, 11.5, 44, 5))});
+    ghost(0, 10, 3, 3, 30) + tag(1.5, 11.5, 44, 3))});
   // research lab
   items.push({d: 30, s: part(F.research, box(16, 9, 3, 3, 50, '#3b4a5a', '#eef0f2', '#cfd5db') + `<path d="M${iso(17.5, 10.5, 50)[0] - 20} ${iso(17.5, 10.5, 50)[1]}a20 16 0 0 1 40 0z" fill="url(#gGlass)" stroke="#3b4a5a"/>`,
     ghost(16, 9, 3, 3, 50) + tag(17.5, 10.5, 70, 5))});
   // robotic gait trainer
   const [gx, gy] = iso(12.6, 10.8);
   items.push({d: 25, s: part(F.robot, tileTop(11.5, 10, 3, 1.6, '#3b4a5a') + `<g transform="translate(${gx},${gy})"><rect x="-22" y="-56" width="4" height="50" fill="#9aa6b2"/><rect x="18" y="-56" width="4" height="50" fill="#9aa6b2"/><rect x="-22" y="-60" width="44" height="6" rx="3" fill="#cfd5db"/><circle cy="-40" r="7" fill="#7fe3d2"/><rect x="-5" y="-33" width="10" height="16" rx="3" fill="#2b5d8f"/><rect x="-7" y="-17" width="4" height="14" fill="#cfd5db" class="legA"/><rect x="3" y="-17" width="4" height="14" fill="#cfd5db" class="legB"/></g>`,
-    tileTop(11.5, 10, 3, 1.6, 'rgba(127,227,210,.08)', 0, 'stroke="#7fe3d2" stroke-dasharray="5 4"') + tag(13, 10.8, 30, 6))});
+    tileTop(11.5, 10, 3, 1.6, 'rgba(127,227,210,.08)', 0, 'stroke="#7fe3d2" stroke-dasharray="5 4"') + tag(13, 10.8, 30, 4))});
   // sustainability: turbines + solar
   const turb = (x, y) => { const [X, Y] = iso(x, y); return `<g transform="translate(${X},${Y})"><rect x="-2" y="-90" width="4" height="90" fill="#eef0f2"/><g class="blades" transform="translate(0,-90)"><path d="M0 0L-4 -36L4 -36z" fill="#fff"/><path d="M0 0L-4 -36L4 -36z" fill="#fff" transform="rotate(120)"/><path d="M0 0L-4 -36L4 -36z" fill="#fff" transform="rotate(240)"/></g></g>`; };
   items.push({d: 5, s: part(F.solar, turb(18.5, 0) + turb(19.5, 3) + box(5, 2.2, 1.6, 1, 3, '#2b4f7a', '#1d3a5c', '#16304e', 110) + box(7.2, 2.2, 1.6, 1, 3, '#2b4f7a', '#1d3a5c', '#16304e', 110),
-    turb(18.5, 0).replace(/#eef0f2|#fff/g, 'rgba(127,227,210,.5)') + tag(18.5, 0, 120, 6))});
+    turb(18.5, 0).replace(/#eef0f2|#fff/g, 'rgba(127,227,210,.5)') + tag(18.5, 0, 120, 5))});
   // land features always present
   seed = 77; [[-1, 14], [1, 14.5], [3.5, 14.6], [10.5, 14.5], [14.5, 14.6], [19.6, 13.6], [19.8, 7], [-1.2, 3]].forEach(([x, y], i) => items.push({d: x + y, s: tree(x + .4, y + .4, .9 + rnd() * .3, i % 2 ? 'round' : 'pine')}));
   items.sort((a, b) => a.d - b.d).forEach(it => o += it.s);

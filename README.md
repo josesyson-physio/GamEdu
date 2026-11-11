@@ -1,33 +1,31 @@
 # Gamified Edu: interactive platform demo
 
-**Learn it. Play it. Master it.** A working vertical slice of an educational gaming universe.
-A learner plays **Anatomy Run**, builds knowledge, unlocks a second game (**Assessment Lab**), earns resources
-and grows **Jo's Clinic** from one room into a futuristic smart rehabilitation centre.
+**Learn it. Play it. Master it.** An educational gaming universe. Today it holds one live world, Physiotherapy,
+with one game, **Anatomy Run**, and its reward space, **Jo's Clinic**. Two more worlds are coming: **Basics of Rocket Science**
+and **AI in Remote Areas**.
 
-- Live demo (after Pages is on): `https://josesyson-physio.github.io/GamEdu/`
-- Live game it connects to: [Anatomy Run](https://josesyson-physio.github.io/anatomy_run/) (unchanged, opened top-level, never embedded)
+- Live demo: https://josesyson-physio.github.io/GamEdu/
+- Live game: [Anatomy Run](https://josesyson-physio.github.io/anatomy_run/) (unchanged, opened top-level, never embedded)
 
 ![Home](docs/screenshots/01-home.png)
 
-## What's in the demo
+## The concept
+1. **Play** Anatomy Run. Every level solved earns sparks (more for more stars) and one case skill. Each of the 4 worlds completed pays a bonus.
+2. **Skills set the limit.** Completing a world unlocks its clinic buildings. Every case in that world at 2★ allows level 2; 3★ (mastery) allows level 3.
+3. **Build** in Jo's Clinic (inside Physiotherapy). Sparks pay; skills decide how far each building can grow.
+4. **Goal:** complete all four worlds, build every building, then build the **Futuristic Smart Clinic**.
+
+## Screens
 | Screen | What works |
 |---|---|
-| Home | Isometric hero world, featured games, continue playing (real Anatomy Run progress), categories, learning journey |
-| Explore | 6 categories; Physiotherapy playable, others clearly "Coming soon" / "Future expansion" |
-| Physiotherapy | 8 skill areas, games, Miller's pyramid learning ladder |
-| Anatomy Run profile | Launches the real game in its own tab; shows real progress read from this browser |
-| Skill map | 6 stages, skills unlocked by learning evidence only, competency areas per stage |
-| Assessment Lab | Second game: mission, 3 challenges, hands-on goniometer task, results, Stage 2 unlock |
-| Jo's Clinic | 12 clickable isometric buildings, unlock rules, costs, 3 visible upgrade levels each |
-| Futuristic clinic | Revealed stage by stage, plus a clearly labelled vision preview |
-| Profile | Jo, rank, XP, sparks, skills, badges, missions, upcoming unlocks, simulated ledger, reset |
-| Walkthrough | 10-step presenter guide with a "simulate milestone" control |
-
-Full details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) (architecture, simulated vs real, limitations, test results, deployment).
-
-## Adding the clinical questions
-Edit `content/assessment-lab.js`: replace each placeholder challenge, set `reviewed: true`, the `reviewer` and `reference`,
-then set `status: 'reviewed'`. The "demonstration content" banner disappears automatically.
+| Home | Isometric hero world, featured, continue playing (real Anatomy Run progress), categories, journey |
+| Explore | Physiotherapy (live), Basics of Rocket Science and AI in Remote Areas (coming soon) |
+| Physiotherapy | Anatomy Run, the reward loop, Jo's Clinic, skill map, Smart Clinic goal |
+| Anatomy Run page | Launches the real game in its own tab; rewards explained; real progress shown |
+| Skill map | 22 case skills in 4 worlds, with stars and what each world unlocks |
+| Jo's Clinic | 12 isometric buildings; skill-capped upgrades with 3 visible levels each |
+| Smart Clinic | Revealed world by world; full vision preview, clearly labelled |
+| Profile | Jo, level, XP, sparks, skills, badges, ledger, reset |
 
 ## Security
 Static site, no backend, no accounts, no payments, no tracking. Strict CSP (scripts from this site only, no network calls),

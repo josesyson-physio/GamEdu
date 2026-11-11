@@ -8,14 +8,14 @@ const fail = [], ok = [];
 const check = (cond, msg) => (cond ? ok : fail).push(msg);
 const walk = d => readdirSync(d).flatMap(f => { const p = join(d, f); return statSync(p).isDirectory() ? walk(p) : [p]; });
 const html = readFileSync('index.html', 'utf8');
-const jsFiles = [...walk('js'), ...walk('content')].filter(f => f.endsWith('.js'));
+const jsFiles = walk('js').filter(f => f.endsWith('.js'));
 const js = Object.fromEntries(jsFiles.map(f => [f, readFileSync(f, 'utf8')]));
 const allJs = Object.values(js).join('\n');
 const ALLOWED_HOSTS = new Set(['fonts.googleapis.com', 'fonts.gstatic.com', 'josesyson-physio.github.io', 'www.w3.org']);
 
 // 1. no inline script at all; every script is a same-origin file
 const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
-check(scripts.length > 0 && scripts.every(m => /\bsrc="(js|content)\/[\w-]+\.js"/.test(m[1]) && !m[2].trim()), `only same-origin script files, no inline script (${scripts.length})`);
+check(scripts.length > 0 && scripts.every(m => /\bsrc="js\/[\w-]+\.js"/.test(m[1]) && !m[2].trim()), `only same-origin script files, no inline script (${scripts.length})`);
 check(!/<[^>]+\son[a-z]+\s*=/i.test(html), 'no inline on* handlers in HTML');
 
 // 2. CSP
@@ -44,7 +44,7 @@ check(blank.every(a => /noopener/.test(a) && /noreferrer/.test(a)), `new-tab lin
 check(!/<form|type="password"|razorpay|stripe|paypal|gtag\(|google-analytics|fbq\(/i.test(html + allJs), 'no payment, login or tracking code');
 check(![/AKIA[0-9A-Z]{16}/, /gh[pousr]_[A-Za-z0-9]{36}/, /github_pat_/, /sk-[A-Za-z0-9]{32,}/, /AIza[0-9A-Za-z_-]{35}/, /-----BEGIN [A-Z ]*PRIVATE KEY/].some(re => re.test(html + allJs)), 'no keys, tokens or secrets');
 // 8. user-visible content escaped
-check(/const esc = /.test(js['js/art.js'] || '') && /esc\(c\.question\)/.test(js['js/lab.js'] || ''), 'lab content is escaped before display');
+check(/const esc = /.test(js['js/art.js'] || '') && /esc\(/.test(js['js/views.js'] || ''), 'text is escaped before display');
 // 9. every JS file parses
 for (const f of jsFiles) { try { execFileSync(process.execPath, ['--check', f]); ok.push(`parses: ${f}`); } catch { fail.push(`parses: ${f}`); } }
 

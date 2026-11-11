@@ -41,40 +41,43 @@ function paintJo(){
 }
 
 /* ---------- routing ---------- */
-const ROUTES = {home:'home', explore:'explore', library:'library', learning:'learning', clinic:'clinic', profile:'profile', lab:'lab', future:'future', 'future-preview':'future', 'game-anatomy-run':'anatomyRun'};
-const NAV_OF = {home:'home', explore:'explore', 'cat':'explore', 'game-anatomy-run':'explore', library:'library', lab:'library', learning:'learning', clinic:'clinic', future:'clinic', 'future-preview':'clinic', profile:'profile'};
+const ROUTES = {home:'home', explore:'explore', library:'library', learning:'learning', clinic:'clinic', profile:'profile', future:'future', 'future-preview':'future', 'game-anatomy-run':'anatomyRun'};
+const NAV_OF = {home:'home', explore:'explore', 'cat':'explore', 'game-anatomy-run':'library', library:'library', learning:'learning', clinic:'explore', future:'explore', 'future-preview':'explore', profile:'profile'};
 function route(){
   const h = (location.hash || '#home').slice(1) || 'home';
   let html, key = h;
   const events = GE.state.syncEvidence();
   try{
     if(h.startsWith('cat-')){ html = GE.views.category(h.slice(4)); key = 'cat'; }
-    else if(h === 'lab'){ html = '<div id="labRoot" class="lab"></div>'; }
     else if(h === 'future' || h === 'future-preview'){ html = GE.views.future(h === 'future-preview'); if(h === 'future-preview') GE.state.markVision(); }
     else if(ROUTES[h]) html = GE.views[ROUTES[h]]();
     else html = GE.views.notFound();
   }catch(e){ console.error(e); html = `<section class="wrap pagehead"><h1>Something went wrong</h1><p>This screen failed to load. <a href="#home">Go home</a> or reset the demo from your profile.</p></section>`; }
   app.classList.add('leaving');
   requestAnimationFrame(() => {
-    app.innerHTML = html; app.classList.remove('leaving'); app.classList.toggle('dark', h === 'lab');
+    app.innerHTML = html; app.classList.remove('leaving'); 
     document.body.dataset.route = key;
     document.querySelectorAll('[data-nav]').forEach(a => a.classList.toggle('on', a.dataset.nav === (NAV_OF[key] || '')));
     bind(h); paintJo(); refreshHud(); walkSync(h);
     if(!app.dataset.first) app.dataset.first = '1'; else window.scrollTo({top: 0, behavior: 'instant' in window ? 'instant' : 'auto'});
     const h1 = app.querySelector('h1'); if(h1){ h1.setAttribute('tabindex', '-1'); }
-    events.forEach(ev => toast(ev.kind === 'level' ? `Anatomy Run level ${ev.n}: +20 sparks, +40 XP` : `Stage ${ev.n} complete! New buildings unlocked`));
+    announce(events);
   });
 }
+function announce(events){
+  const lv = events.filter(e => e.kind === 'level'), sg = events.filter(e => e.kind === 'stage');
+  if(sg.length) toast(`World ${sg.map(e => e.n).join(', ')} complete! New buildings unlocked in Jo's Clinic`);
+  else if(lv.length) toast(lv.length === 1 ? `Level ${lv[0].n}: +${lv[0].sp} sparks, +${lv[0].xp} XP` : `${lv.length} levels: +${lv.reduce((a, e) => a + e.sp, 0)} sparks`);
+}
 function bind(h){
-  if(h === 'lab'){ GE.lab.open(); }
-  const sim = $('simMs'); if(sim) sim.addEventListener('click', () => { GE.state.simulateMilestone(); sfx('unlock'); route(); });
+  const sim = $('simMs'); if(sim) sim.addEventListener('click', () => { GE.state.simulateWorld(); sfx('unlock'); route(); });
   const tv = $('toggleVision'); if(tv) tv.addEventListener('click', () => { location.hash = h === 'future-preview' ? '#future' : '#future-preview'; });
   if(h === 'clinic') bindClinic();
   if(h === 'profile'){
     document.querySelectorAll('.look').forEach(b => b.addEventListener('click', () => { GE.state.setLook(+b.dataset.l); route(); }));
     $('resetAsk').addEventListener('click', () => { $('resetConfirm').hidden = false; $('resetAsk').hidden = true; });
     $('resetNo').addEventListener('click', () => { $('resetConfirm').hidden = true; $('resetAsk').hidden = false; });
-    $('resetYes').addEventListener('click', () => { GE.state.reset(); GE.lab.reset(); toast('Demo progress reset'); location.hash = '#home'; route(); });
+    $('resetYes').addEventListener('click', () => { GE.state.reset(); toast('Demo progress reset'); if(location.hash === '#home') route(); else location.hash = '#home'; });
   }
 }
 function bindClinic(){
@@ -90,7 +93,7 @@ function bindClinic(){
       $('mapWrap').innerHTML = GE.art.clinicMap(); bindMap(); paintJo(); refreshHud();
       const g = document.querySelector(`.bld[data-b="${id}"]`); if(g){ g.classList.add('just'); }
       open(id);
-      const stats = document.querySelector('.clinic-stats'); if(stats){ const s = GE.state.get(); stats.children[0].querySelector('b').textContent = Object.values(s.buildings).filter(Boolean).length; stats.children[1].querySelector('b').textContent = s.sparks; }
+      const stats = document.querySelector('.clinic-stats'); if(stats){ const s = GE.state.get(); stats.children[0].querySelector('b').textContent = Object.values(s.buildings).filter(Boolean).length; stats.children[1].querySelector('b').textContent = GE.state.setupScore() + '/36'; stats.children[2].querySelector('b').textContent = s.sparks; }
     });
   };
   function bindMap(){
@@ -107,37 +110,37 @@ function bindClinic(){
 /* ---------- presenter walkthrough ---------- */
 const WALK = [
   {go:'#home', t:'Explore Gamified Edu', d:'One universe of educational games. Learn it, play it, master it.'},
-  {go:'#explore', t:'Choose a world', d:'Physiotherapy is live. School, Science, Maths and more are clearly marked as coming.'},
-  {go:'#cat-physio', t:'Enter Physiotherapy', d:'Eight skill areas and a learning ladder from “knows” to “shows how”.'},
-  {go:'#game-anatomy-run', t:'Open Anatomy Run', d:'The real, live game opens in its own tab. Its progress flows back here.'},
-  {go:'#game-anatomy-run', t:'Reach a milestone', d:'Play 6 levels, or press “Simulate milestone” for the demo. It is logged as simulated.', act:'sim'},
-  {go:'#learning', t:'Earn sparks and XP', d:'Stage 1 complete: sparks for the clinic, XP for learning. Assessment Lab is unlocked.'},
-  {go:'#lab', t:'Play Assessment Lab', d:'A second, separate game: three challenges and a hands-on goniometry task.'},
-  {go:'#clinic', t:'Upgrade Jo’s Clinic', d:'Build the Assessment Lab and Diagnostic Wing. Buildings visibly change with each level.'},
-  {go:'#learning', t:'Reveal future progression', d:'Stages 3 to 6 show what comes next: reasoning, rehab planning, practice, technology.'},
-  {go:'#future-preview', t:'Preview the Smart Clinic', d:'The destination: robotics, AI analysis, hydrotherapy and research, revealed stage by stage.'}
+  {go:'#explore', t:'Choose a world', d:'Physiotherapy is live. Basics of Rocket Science and AI in Remote Areas are coming.'},
+  {go:'#cat-physio', t:'Enter Physiotherapy', d:'The game (Anatomy Run) and the reward space (Jo’s Clinic) live together in this world.'},
+  {go:'#game-anatomy-run', t:'Play Anatomy Run', d:'The real game opens in its own tab. Every level solved earns sparks and a case skill.'},
+  {go:'#game-anatomy-run', t:'Complete a world', d:'Play levels 1 to 6, or press “Simulate world 1” for the demo. It is logged as simulated.', act:'sim'},
+  {go:'#learning', t:'See the skills earned', d:'Each solved case is a skill. A completed world pays a bonus and unlocks new clinic buildings.'},
+  {go:'#clinic', t:'Build Jo’s Clinic', d:'Spend sparks: build the Assessment Room and Rehab Gym, then upgrade them and watch them change.'},
+  {go:'#game-anatomy-run', t:'Keep going', d:'Each world unlocks more: sports lab, hydrotherapy, diagnostics, spine, neuro, robotics.', act:'sim'},
+  {go:'#future', t:'Grow the Smart Clinic', d:'Every world completed brings more of the Futuristic Smart Clinic to life.'},
+  {go:'#future-preview', t:'The ultimate goal', d:'All four worlds plus every building: the Futuristic Smart Clinic.'}
 ];
 let walkI = -1;
 function walkRender(){
   const w = $('walk'); if(walkI < 0){ w.hidden = true; $('walkBtn').setAttribute('aria-expanded', 'false'); return; }
   const s = WALK[walkI]; w.hidden = false; $('walkBtn').setAttribute('aria-expanded', 'true');
   w.innerHTML = `<div class="wtop"><span class="mono">STEP ${walkI + 1} / ${WALK.length}</span><button type="button" id="wClose" aria-label="Close walkthrough">×</button></div><b>${GE.art.esc(s.t)}</b><p>${GE.art.esc(s.d)}</p>
-    ${s.act === 'sim' && !GE.state.stageDone(1) ? '<button class="btn gold" id="wSim" type="button">Simulate milestone</button>' : ''}
+    ${s.act === 'sim' && GE.state.stagesComplete() < 4 ? '<button class="btn gold" id="wSim" type="button">Simulate next world</button>' : ''}
     <div class="wnav"><button class="btn ghost" id="wPrev" type="button" ${walkI ? '' : 'disabled'}>Back</button><button class="btn gold" id="wNext" type="button">${walkI < WALK.length - 1 ? 'Next' : 'Finish'}</button></div>`;
   $('wClose').addEventListener('click', () => { walkI = -1; walkRender(); });
   $('wPrev').addEventListener('click', () => { walkI--; location.hash = WALK[walkI].go; walkRender(); });
   $('wNext').addEventListener('click', () => { if(walkI >= WALK.length - 1){ walkI = -1; walkRender(); toast('Walkthrough complete'); return; } walkI++; const to = WALK[walkI].go; if(location.hash === to) route(); else location.hash = to; walkRender(); });
-  const ws = $('wSim'); if(ws) ws.addEventListener('click', () => { GE.state.simulateMilestone(); sfx('unlock'); route(); walkRender(); });
+  const ws = $('wSim'); if(ws) ws.addEventListener('click', () => { GE.state.simulateWorld(); sfx('unlock'); route(); walkRender(); });
 }
 function walkSync(){ if(walkI >= 0) walkRender(); }
 
 /* ---------- init ---------- */
 $('walkBtn').addEventListener('click', () => { walkI = walkI < 0 ? 0 : -1; if(walkI === 0) location.hash = WALK[0].go; walkRender(); });
 window.addEventListener('hashchange', route);
-window.addEventListener('storage', e => { if(e.key === GE.state.AR_KEY && (location.hash || '#home') !== '#lab') route(); });
+window.addEventListener('storage', e => { if(e.key === GE.state.AR_KEY) route(); });
 document.addEventListener('visibilitychange', () => {   // back from the Anatomy Run tab: pick up new progress
   if(document.hidden) return; const h = (location.hash || '#home').slice(1);
-  if(h === 'lab' || h === 'clinic'){ const ev = GE.state.syncEvidence(); refreshHud(); ev.forEach(e => toast(e.kind === 'level' ? `Anatomy Run level ${e.n}: +20 sparks, +40 XP` : `Stage ${e.n} complete!`)); }
+  if(h === 'clinic'){ const ev = GE.state.syncEvidence(); refreshHud(); announce(ev); }
   else route(); });
 GE.state.badge('welcome'); GE.state.save();
 GE.ui = {toast, sfx, refreshHud};
