@@ -3,7 +3,7 @@
 (function(){
 const KEY = 'gamified-edu-demo';
 const AR_KEY = 'physio-quest';               // Anatomy Run's own save. READ ONLY: never written here.
-const RC_KEY = 'root-cause';                 // Root Cause: Body City's own save. READ ONLY here too.
+const RC_KEY = 'root-cause';                 // Root Raid: Body City's own save. READ ONLY here too.
 const SEED_SPARKS = 300;
 const VERSION = 2;
 
@@ -135,7 +135,7 @@ function syncEvidence(){
     if(stars > had){
       const sp = (had ? 0 : R.levelSparks) + (stars - had) * R.starSparks, xp = (had ? 0 : R.levelXp) + (stars - had) * R.starXp;
       S.rcCredited[id] = stars;
-      grant(had ? `Root Cause improved to ${stars}★: ${GE.RC_CASES[id]}` : `Root Cause solved (${stars}★): ${GE.RC_CASES[id]}`, sp, xp, false);
+      grant(had ? `Root Raid improved to ${stars}★: ${GE.RC_CASES[id]}` : `Root Raid closed (${stars}★): ${GE.RC_CASES[id]}`, sp, xp, false);
       events.push({kind:'rc', id, sp, xp});
     }
   }

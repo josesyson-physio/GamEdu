@@ -22,10 +22,10 @@ GE.PHYSIO_SKILLS = ['Anatomy','Clinical reasoning','Special tests','Red flags','
 GE.GAMES = [
   {id:'anatomy-run', name:'Anatomy Run', cat:'physio', subject:'Anatomy · Clinical reasoning', kind:'real',
    desc:'Run through 22 levels and 4 worlds, collect clue gems and make the diagnosis. Every case you solve earns sparks and a skill.'},
-  {id:'root-cause', name:'Root Cause: Body City', cat:'physio', subject:'Assessment · Treatment planning', kind:'real',
-   desc:'Investigate 10 common painful conditions, clear the symptoms with the right treatment, then take down the root cause.'}
+  {id:'root-cause', name:'Root Raid: Body City', cat:'physio', subject:'Open world · Assessment & treatment', kind:'real',
+   desc:'Open-world Body City. Roam the streets, find people who need help, run the tests, then raid the root cause. 10 cases, zero quizzes.'}
 ];
-/* Root Cause: Body City cases (ids match root-cause/cases.js). Each solved case = one treatment skill. */
+/* Root Raid: Body City cases (ids match root-cause/cases.js). Each solved case = one treatment skill. */
 GE.RC_CASES = {'tennis-elbow':'Tennis elbow','carpal-tunnel':'Carpal tunnel syndrome','subacromial-pain':'Subacromial shoulder pain','frozen-shoulder':'Frozen shoulder',
   'cervical-radiculopathy':'Cervical radiculopathy','lbp':'Non-specific low back pain','lumbar-disc':'Lumbar disc herniation','knee-oa':'Knee osteoarthritis',
   'ankle-sprain':'Lateral ankle sprain','plantar-heel-pain':'Plantar heel pain'};
@@ -89,13 +89,13 @@ GE.BADGES = [
   {id:'build', name:'First build', desc:'Built a new clinic building'},
   {id:'upgrade', name:'Upgrader', desc:'Upgraded a building to level 2'},
   {id:'smart', name:'Futuristic clinic', desc:'Built the Futuristic Smart Clinic'},
-  {id:'rootFirst', name:'Root cause hunter', desc:'Solved a Root Cause: Body City case'},
-  {id:'rootAll', name:'Body City hero', desc:'Solved all 10 Root Cause cases'}
+  {id:'rootFirst', name:'Root cause hunter', desc:'Closed a Root Raid: Body City case'},
+  {id:'rootAll', name:'Body City hero', desc:'Solved all 10 Root Raid cases'}
 ];
 /* Learning frame: Miller's pyramid. Anatomy Run builds "knows" and "knows how". */
 GE.MILLER = [
   {id:'knows', name:'Knows', desc:'Facts and concepts', where:'Clue gems and flashcards in Anatomy Run'},
   {id:'knowshow', name:'Knows how', desc:'Applies knowledge to a case', where:'Diagnosis and reasoning checks in Anatomy Run'},
-  {id:'showshow', name:'Shows how', desc:'Performs a skill in simulation', where:'Treatment choices in Root Cause; more future games'},
+  {id:'showshow', name:'Shows how', desc:'Performs a skill in simulation', where:'Treatment choices in Root Raid; more future games'},
   {id:'does', name:'Does', desc:'Performs with real patients', where:'Supervised clinical placement only, never in a game'}
 ];

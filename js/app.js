@@ -66,7 +66,7 @@ function route(){
 }
 function announce(events){
   const lv = events.filter(e => e.kind === 'level'), sg = events.filter(e => e.kind === 'stage'), rc = events.filter(e => e.kind === 'rc');
-  if(rc.length && !lv.length && !sg.length){ toast(rc.length === 1 ? `Root Cause: ${GE.RC_CASES[rc[0].id]} · +${rc[0].sp} sparks, +${rc[0].xp} XP` : `${rc.length} Root Cause cases: +${rc.reduce((a, e) => a + e.sp, 0)} sparks`); return; }
+  if(rc.length && !lv.length && !sg.length){ toast(rc.length === 1 ? `Root Raid: ${GE.RC_CASES[rc[0].id]} · +${rc[0].sp} sparks, +${rc[0].xp} XP` : `${rc.length} Root Raid cases: +${rc.reduce((a, e) => a + e.sp, 0)} sparks`); return; }
   if(sg.length) toast(`World ${sg.map(e => e.n).join(', ')} complete! New buildings unlocked in Jo's Clinic`);
   else if(lv.length) toast(lv.length === 1 ? `Level ${lv[0].n}: +${lv[0].sp} sparks, +${lv[0].xp} XP` : `${lv.length} levels: +${lv.reduce((a, e) => a + e.sp, 0)} sparks`);
 }

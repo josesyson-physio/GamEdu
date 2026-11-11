@@ -1,12 +1,12 @@
 # Gamified Edu: interactive platform demo
 
 **Learn it. Play it. Master it.** An educational gaming universe. Today it holds one live world, Physiotherapy,
-with two games, **Anatomy Run** and **Root Cause: Body City**, and its reward space, **Jo's Clinic**. Two more worlds are coming: **Basics of Rocket Science**
+with two games, **Anatomy Run** and **Root Raid: Body City**, and its reward space, **Jo's Clinic**. Two more worlds are coming: **Basics of Rocket Science**
 and **AI in Remote Areas**.
 
 - Live demo: https://josesyson-physio.github.io/GamEdu/
 - Live game: [Anatomy Run](https://josesyson-physio.github.io/anatomy_run/) (unchanged, opened top-level, never embedded)
-- New game: [Root Cause: Body City](https://josesyson-physio.github.io/GamEdu/root-cause/) (in `root-cause/`)
+- New game: [Root Raid: Body City](https://josesyson-physio.github.io/GamEdu/root-cause/) (in `root-cause/`)
 
 ![Home](docs/screenshots/01-home.png)
 
@@ -14,7 +14,7 @@ and **AI in Remote Areas**.
 1. **Play** Anatomy Run. Every level solved earns sparks (more for more stars) and one case skill. Each of the 4 worlds completed pays a bonus.
 2. **Skills set the limit.** Completing a world unlocks its clinic buildings. Every case in that world at 2★ allows level 2; 3★ (mastery) allows level 3.
 3. **Build** in Jo's Clinic (inside Physiotherapy). Sparks pay; skills decide how far each building can grow.
-4. **Play Root Cause: Body City.** A city built inside the body, with 10 districts for 10 common painful conditions. Investigate (tests, red flag, root cause), clear the symptoms with the right treatment, then defeat the root cause. Each case pays sparks and a treatment skill.
+4. **Play Root Raid: Body City.** An open-world city built inside the body. Roam the streets, meet people who need help, run tests at street kiosks, send the red flag to hospital, find the right hideout and raid the root cause. No quiz screens. Each case pays sparks and a treatment skill.
 5. **Goal:** complete all four worlds, build every building, then build the **Futuristic Smart Clinic**.
 
 ## Screens

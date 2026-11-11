@@ -17,7 +17,7 @@ function arCard(){
 function rcCard(){
   const rc = GE.state.readRootCause();
   return `<a class="gcard" href="#game-root-cause"><div class="art">${A().cardArt('root-cause')}<span class="kind">New game</span></div>
-    <div class="body"><span class="subj">Physiotherapy · Assessment & treatment</span><h3>Root Cause: Body City</h3><p>${esc(GE.GAMES[1].desc)}</p>
+    <div class="body"><span class="subj">Physiotherapy · Assessment & treatment</span><h3>Root Raid: Body City</h3><p>${esc(GE.GAMES[1].desc)}</p>
     <div class="foot"><span class="status">${rc.count ? `${rc.count}/10 cases solved` : 'Free · play now'}</span><span class="cta">${rc.count ? 'Continue' : 'Play'} →</span></div></div></a>`;
 }
 function clinicCard(){
@@ -53,7 +53,7 @@ function home(){
       <div class="meter"><i style="--p:${Math.round(ev.realCount / 22 * 100)}%"></i></div><p>${ev.ar.found ? 'Progress read from Anatomy Run on this device.' : 'No Anatomy Run progress on this device yet. It appears here automatically after you play in this browser.'}</p>
       <div class="row"><a class="btn gold" href="#game-anatomy-run">Continue</a><a class="btn ghost" href="#clinic">Spend rewards in Jo's Clinic</a></div></div></div></section>
   <section class="wrap"><div class="sechead"><h2>Explore categories</h2><a href="#explore">All categories →</a></div><div class="grid3">${GE.CATEGORIES.map(catCard).join('')}</div></section>
-  <section class="wrap two"><div><div class="sechead"><h2>Popular now</h2></div><ul class="rank"><li><span class="n">1</span><a href="#game-anatomy-run"><b>Anatomy Run</b><small>Physiotherapy · 22 levels</small></a></li><li><span class="n">2</span><a href="#game-root-cause"><b>Root Cause: Body City</b><small>Physiotherapy · 10 cases</small></a></li></ul></div>
+  <section class="wrap two"><div><div class="sechead"><h2>Popular now</h2></div><ul class="rank"><li><span class="n">1</span><a href="#game-anatomy-run"><b>Anatomy Run</b><small>Physiotherapy · 22 levels</small></a></li><li><span class="n">2</span><a href="#game-root-cause"><b>Root Raid: Body City</b><small>Physiotherapy · 10 cases</small></a></li></ul></div>
     <div><div class="sechead"><h2>New experiences</h2></div><ul class="news"><li><b>Jo's Clinic rewards</b><span>Turn the points and skills you earn into your own clinic.</span></li><li><b>Basics of Rocket Science</b><span>A new world in development.</span></li><li><b>AI in Remote Areas</b><span>A new world in development.</span></li></ul></div></section>
   <section class="wrap"><div class="sechead"><h2>My learning journey</h2><a href="#learning">Skill map →</a></div>${journeyStrip()}</section>`;
 }
@@ -79,7 +79,7 @@ function physio(){
     <div class="grid3 mt">${clinicCard()}<a class="gcard" href="#learning"><div class="body"><span class="subj">Your progress</span><h3>Skill map</h3><p>22 case skills across 4 worlds. ${ev.count} earned so far.</p><div class="foot"><span class="status">${GE.state.stagesComplete(ev)}/4 worlds</span><span class="cta">View →</span></div></div></a>
     <a class="gcard" href="#future"><div class="body"><span class="subj">Ultimate goal</span><h3>Futuristic Smart Clinic</h3><p>Robotics, AI movement analysis, hydrotherapy and research, revealed world by world.</p><div class="foot"><span class="status">${S().buildings.smart ? 'Built' : 'Locked'}</span><span class="cta">Preview →</span></div></div></a></div></section>
   <section class="wrap"><div class="sechead"><h2>Skill areas</h2></div><div class="chips">${GE.PHYSIO_SKILLS.map(s => `<span class="chip">${esc(s)}</span>`).join('')}</div>
-    <div class="sechead mt"><h2>How the learning builds</h2></div>${millerLadder()}<p class="muted small">Based on Miller's pyramid of clinical competence. Anatomy Run builds “knows” and “knows how”; Root Cause practises treatment choices (“shows how” in simulation). “Does” only happens in supervised clinical practice.</p></section>`;
+    <div class="sechead mt"><h2>How the learning builds</h2></div>${millerLadder()}<p class="muted small">Based on Miller's pyramid of clinical competence. Anatomy Run builds “knows” and “knows how”; Root Raid practises treatment choices (“shows how” in simulation). “Does” only happens in supervised clinical practice.</p></section>`;
 }
 function millerLadder(){
   return `<ol class="miller">${GE.MILLER.slice().reverse().map((m, i) => `<li class="m-${m.id}" style="--w:${55 + i * 15}%"><b>${esc(m.name)}</b><span>${esc(m.desc)}</span><small>${esc(m.where)}</small></li>`).join('')}</ol>`;
@@ -102,19 +102,19 @@ function anatomyRun(){
     <div><div class="sechead"><h2>In the game</h2></div><ul class="ticks">${keep.map(k => `<li>${esc(k)}</li>`).join('')}</ul></div></section>`;
 }
 
-/* ---------- GAME PAGE: Root Cause: Body City ---------- */
+/* ---------- GAME PAGE: Root Raid: Body City ---------- */
 function rootCause(){
   const rc = GE.state.readRootCause(), R = GE.REWARD;
-  const how = ['Investigate: pick the right tests, spot the red flag, name the root cause','Arena: clear each symptom with the treatment that fits it','Symptoms keep coming back until the root cause is treated','Debrief: the full chain from cause to management, with the library references'];
-  return `<section class="gamehero"><div class="art">${A().cardArt('root-cause')}</div><div class="wrap">${crumb(['Physiotherapy', '#cat-physio'], ['Root Cause: Body City', ''])}<span class="pill st-available">New game</span><h1>Root Cause: Body City</h1>
-    <p>A city built inside the human body. Ten districts, ten common painful conditions. Treat the symptoms to break through, then take down the root cause.</p>
+  const how = ['Roam a city shaped like a body, on foot or on Jo’s scooter','Meet someone who needs help, then run tests at street kiosks to see which ones come up positive','One local needs a hospital, not a clinic: spot the red flag and call the ambulance','Pick the right hideout and raid it: each symptom only gives way to the treatment that fits','Symptoms respawn until the root cause is gone, then you get the full case file'];
+  return `<section class="gamehero"><div class="art">${A().cardArt('root-cause')}</div><div class="wrap">${crumb(['Physiotherapy', '#cat-physio'], ['Root Raid: Body City', ''])}<span class="pill st-available">New game</span><h1>Root Raid: Body City</h1>
+    <p>A whole city built inside the human body. Ten districts, ten common painful conditions. No quiz screens: you learn by roaming, testing, referring and raiding.</p>
     <div class="row"><a class="btn gold big" href="${GE.ROOT_CAUSE_URL}" id="launchRC">Enter Body City</a><a class="btn ghost light" href="#clinic">Spend rewards in Jo's Clinic</a></div>
     <p class="note">Clinical content adapted from the Learn Anywhere library (CC BY-NC-SA 4.0). Draft, pending clinical panel review.</p></div></section>
   <section class="wrap two"><div><div class="sechead"><h2>Rewards you earn</h2></div>
-    <ul class="rewards-list"><li><b>${R.levelSparks}</b> sparks for each case solved</li><li><b>+${R.starSparks}</b> sparks for every star (up to 3)</li><li><b>1 treatment skill</b> for every case</li><li>Stars: solve it, get every investigation call right first time, keep Jo's energy at 3 or more</li></ul>
+    <ul class="rewards-list"><li><b>${R.levelSparks}</b> sparks for each case solved</li><li><b>+${R.starSparks}</b> sparks for every star (up to 3)</li><li><b>1 treatment skill</b> for every case</li><li>Stars: close the case, make no wrong test, referral or hideout call, keep Jo's energy at 3 or more</li></ul>
     <div class="stat-grid mt"><div><b>${rc.count}/10</b><span>cases solved</span></div><div><b>${Object.values(rc.stars).filter(x => x === 3).length}</b><span>perfect cases</span></div></div>
     <div class="sechead mt"><h2>Treatment skills</h2></div><div class="chips">${GE.state.treatmentSkills().map(x => `<span class="chip ${x.stars ? 'got' : ''}">${esc(x.name)}${x.stars ? ` <small>${starStr(x.stars)}</small>` : ''}</span>`).join('')}</div></div>
-    <div><div class="sechead"><h2>How a case works</h2></div><ul class="ticks">${how.map(k => `<li>${esc(k)}</li>`).join('')}</ul><p class="muted small">Educational only, not medical advice.</p></div></section>`;
+    <div><div class="sechead"><h2>How it plays</h2></div><ul class="ticks">${how.map(k => `<li>${esc(k)}</li>`).join('')}</ul><p class="muted small">Educational only, not medical advice.</p></div></section>`;
 }
 
 /* ---------- LIBRARY ---------- */
@@ -141,10 +141,10 @@ function learning(){
   const smart = S().buildings.smart, tsk = GE.state.treatmentSkills();
   return `<section class="wrap pagehead">${crumb(['Physiotherapy', '#cat-physio'], ['Skill map', ''])}<h1>Skill map</h1><p>Every Anatomy Run case and every Root Cause case you solve becomes a skill. Completing a world unlocks new buildings in Jo's Clinic. Sparks build; they never buy a skill.</p></section>
   <section class="wrap"><ol class="stages">${rows}
-    <li class="stage ${tsk.some(x => x.stars) ? 'active' : 'next'}"><div class="node"><span>RC</span></div><div class="card"><span class="eyebrow">Root Cause: Body City · 10 cases</span><h3>Treatment skills</h3><p class="muted small">Find the root cause, treat the symptoms that fit each tool, then treat the cause.</p>
+    <li class="stage ${tsk.some(x => x.stars) ? 'active' : 'next'}"><div class="node"><span>RC</span></div><div class="card"><span class="eyebrow">Root Raid: Body City · 10 cases</span><h3>Treatment skills</h3><p class="muted small">Earned in the open world: test, refer, find the root cause, treat it.</p>
       <div class="frame"><span class="mtag m-knowshow">Knows how</span><span class="mtag m-showshow">Shows how</span></div>
       <ul class="skills">${tsk.map(x => `<li class="${x.stars ? 'got' : ''}"><span class="dot"></span>${esc(x.name)}<small>${x.stars ? starStr(x.stars) : 'Solve in Body City'}</small></li>`).join('')}</ul>
-      <div class="row"><a class="btn ghost" href="#game-root-cause">Play Root Cause</a></div></div></li>
+      <div class="row"><a class="btn ghost" href="#game-root-cause">Play Root Raid</a></div></div></li>
     <li class="stage ${smart ? 'done' : 'goal'}"><div class="node"><span>★</span></div><div class="card"><span class="eyebrow">Ultimate goal</span><h3>Futuristic Smart Clinic</h3><p>Complete all four worlds, build every other building in Jo's Clinic, then build the Smart Clinic.</p><div class="row"><a class="btn gold" href="#clinic">Go to Jo's Clinic</a><a class="btn ghost" href="#future">Preview it</a></div></div></li>
     <li class="stage future"><div class="node"><span>+</span></div><div class="card"><span class="eyebrow">Coming next</span><h3>More physiotherapy games</h3><p>New games will add more skills, including hands-on “shows how” practice, and feed the same clinic.</p></div></li></ol>
   <p class="muted small disclaimer">Game skills show learning progress. They are not professional qualifications or clinical certification.</p></section>`;
