@@ -45,8 +45,24 @@ check(!/<form|type="password"|razorpay|stripe|paypal|gtag\(|google-analytics|fbq
 check(![/AKIA[0-9A-Z]{16}/, /gh[pousr]_[A-Za-z0-9]{36}/, /github_pat_/, /sk-[A-Za-z0-9]{32,}/, /AIza[0-9A-Za-z_-]{35}/, /-----BEGIN [A-Z ]*PRIVATE KEY/].some(re => re.test(html + allJs)), 'no keys, tokens or secrets');
 // 8. user-visible content escaped
 check(/const esc = /.test(js['js/art.js'] || '') && /esc\(/.test(js['js/views.js'] || ''), 'text is escaped before display');
-// 9. every JS file parses
-for (const f of jsFiles) { try { execFileSync(process.execPath, ['--check', f]); ok.push(`parses: ${f}`); } catch { fail.push(`parses: ${f}`); } }
+// 9. Root Cause: Body City (root-cause/) meets the same rules
+const rcHtml = readFileSync('root-cause/index.html', 'utf8');
+const rcFiles = walk('root-cause').filter(f => f.endsWith('.js'));
+const rcJs = rcFiles.map(f => readFileSync(f, 'utf8')).join('\n');
+const rcScripts = [...rcHtml.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+check(rcScripts.length > 0 && rcScripts.every(m => /\bsrc="[\w-]+\.js"/.test(m[1]) && !m[2].trim()), `Root Cause: only same-origin script files (${rcScripts.length})`);
+check(!/<[^>]+\son[a-z]+\s*=/i.test(rcHtml), 'Root Cause: no inline on* handlers');
+const rcCsp = (rcHtml.match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)">/) || [])[1] || '';
+check(["default-src 'none'", "script-src 'self'", "connect-src 'none'", "object-src 'none'", "base-uri 'none'", "form-action 'none'"].every(d => rcCsp.includes(d)) && !/script-src[^;]*'unsafe-/.test(rcCsp), 'Root Cause: strict CSP');
+check(![/\beval\s*\(/, /new\s+Function\s*\(/, /document\.write/, /\bfetch\s*\(|XMLHttpRequest|WebSocket|sendBeacon/, /<iframe/i].some(re => re.test(rcJs)), 'Root Cause: no eval, network calls or iframes');
+check(/window\.top !== window\.self/.test(rcJs), 'Root Cause: anti-framing guard present');
+check(!/(setItem|removeItem)\(\s*['"](physio-quest|gamified-edu-demo)['"]/.test(rcJs), 'Root Cause: never writes the Anatomy Run or platform saves');
+check(!/(setItem|removeItem)\(\s*(RC_KEY|['"]root-cause['"])/.test(allJs), 'platform never writes or deletes the Root Cause save');
+check(/const esc = /.test(rcJs) && /CC BY-NC-SA 4\.0/.test(rcJs), 'Root Cause: text escaped and library licence credited');
+for (const h of new Set([...(rcHtml + rcJs).matchAll(/https?:\/\/([a-z0-9.-]+)/gi)].map(m => m[1].toLowerCase()))) check(ALLOWED_HOSTS.has(h), `Root Cause host allowed: ${h}`);
+
+// 10. every JS file parses
+for (const f of [...jsFiles, ...rcFiles]) { try { execFileSync(process.execPath, ['--check', f]); ok.push(`parses: ${f}`); } catch { fail.push(`parses: ${f}`); } }
 
 for (const m of ok) console.log('  PASS', m);
 for (const m of fail) console.log('  FAIL', m);

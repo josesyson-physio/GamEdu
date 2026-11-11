@@ -3,23 +3,25 @@
 (function(){
 const KEY = 'gamified-edu-demo';
 const AR_KEY = 'physio-quest';               // Anatomy Run's own save. READ ONLY: never written here.
+const RC_KEY = 'root-cause';                 // Root Cause: Body City's own save. READ ONLY here too.
 const SEED_SPARKS = 300;
 const VERSION = 2;
 
 function fresh(){
-  return {v:VERSION, look:0, sparks:SEED_SPARKS, xp:0, buildings:{reception:1}, badges:{}, credited:{}, stagePaid:{}, sim:{}, seenVision:false,
+  return {v:VERSION, look:0, sparks:SEED_SPARKS, xp:0, buildings:{reception:1}, badges:{}, credited:{}, rcCredited:{}, stagePaid:{}, sim:{}, seenVision:false,
     tx:[{t:Date.now(), label:'Demo starting balance', sparks:SEED_SPARKS, xp:0, sim:true}]};
 }
 const num = (v, max) => { v = +v; return Number.isFinite(v) && v >= 0 ? Math.min(Math.floor(v), max) : 0; };
 const obj = v => v && typeof v === 'object' && !Array.isArray(v);
 function sanitize(s){
   s.sparks = num(s.sparks, 1e6); s.xp = num(s.xp, 1e6); s.look = s.look === 1 ? 1 : 0;
-  ['buildings','badges','credited','stagePaid','sim'].forEach(k => { if(!obj(s[k])) s[k] = {}; });
+  ['buildings','badges','credited','rcCredited','stagePaid','sim'].forEach(k => { if(!obj(s[k])) s[k] = {}; });
   const ids = new Set(GE.BUILDINGS.map(b => b.id));
   for(const k of Object.keys(s.buildings)){ if(!ids.has(k)) delete s.buildings[k]; else s.buildings[k] = Math.min(3, num(s.buildings[k], 3)); }
   if(!s.buildings.reception) s.buildings.reception = 1;
   for(const k of Object.keys(s.credited)) s.credited[k] = Math.min(3, num(s.credited[k], 3));
   for(const k of Object.keys(s.sim)) s.sim[k] = Math.min(3, num(s.sim[k], 3));
+  for(const k of Object.keys(s.rcCredited)){ if(!(k in GE.RC_CASES)) delete s.rcCredited[k]; else s.rcCredited[k] = Math.min(3, num(s.rcCredited[k], 3)); }
   if(!Array.isArray(s.tx)) s.tx = []; s.tx = s.tx.slice(-80);
   s.seenVision = !!s.seenVision;
   return s;
@@ -42,6 +44,18 @@ function readAnatomyRun(){
     return {found:true, stars, count:Object.keys(stars).length, sparks:num(ar.sparks, 1e6)};
   }catch(e){ return {found:false, stars:{}, count:0, sparks:0}; }
 }
+
+/* ---------- Root Cause bridge: same site, read only ---------- */
+function readRootCause(){
+  try{
+    const rc = JSON.parse(localStorage.getItem(RC_KEY));
+    if(!obj(rc) || !obj(rc.done)) return {found:false, stars:{}, count:0};
+    const stars = {};
+    for(const [k, v] of Object.entries(rc.done)) if(Object.prototype.hasOwnProperty.call(GE.RC_CASES, k)) stars[k] = Math.max(1, Math.min(3, num(v, 3)));
+    return {found:true, stars, count:Object.keys(stars).length};
+  }catch(e){ return {found:false, stars:{}, count:0}; }
+}
+function treatmentSkills(){ const rc = readRootCause(); return Object.keys(GE.RC_CASES).map(id => ({id, name:GE.RC_CASES[id], stars:rc.stars[id] || 0})); }
 
 /* ---------- learning evidence: real solved levels, plus clearly labelled presenter simulation ---------- */
 function evidence(){
@@ -115,6 +129,18 @@ function syncEvidence(){
       events.push({kind:'level', n, sp, xp});
     }
   }
+  const rc = readRootCause();
+  for(const [id, stars] of Object.entries(rc.stars)){
+    const had = S.rcCredited[id] || 0;
+    if(stars > had){
+      const sp = (had ? 0 : R.levelSparks) + (stars - had) * R.starSparks, xp = (had ? 0 : R.levelXp) + (stars - had) * R.starXp;
+      S.rcCredited[id] = stars;
+      grant(had ? `Root Cause improved to ${stars}★: ${GE.RC_CASES[id]}` : `Root Cause solved (${stars}★): ${GE.RC_CASES[id]}`, sp, xp, false);
+      events.push({kind:'rc', id, sp, xp});
+    }
+  }
+  if(rc.count >= 1) badge('rootFirst');
+  if(rc.count >= 10) badge('rootAll');
   if(ev.count >= 1) badge('firstLevel');
   if(Object.values(ev.stars).filter(x => x === 3).length >= 5) badge('stars');
   for(const st of GE.STAGES){
@@ -144,5 +170,5 @@ function levelInfo(){
 }
 
 GE.state = {get:() => S, save, on:f => listeners.push(f), readAnatomyRun, evidence, stageDone, stageProgress, stagesComplete, skills,
-  buildingState, buyBuilding, setupScore, syncEvidence, simulateWorld, markVision, setLook, reset, levelInfo, badge, KEY, AR_KEY};
+  buildingState, buyBuilding, setupScore, syncEvidence, simulateWorld, markVision, setLook, reset, levelInfo, badge, readRootCause, treatmentSkills, KEY, AR_KEY, RC_KEY};
 })();

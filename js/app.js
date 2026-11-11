@@ -41,8 +41,8 @@ function paintJo(){
 }
 
 /* ---------- routing ---------- */
-const ROUTES = {home:'home', explore:'explore', library:'library', learning:'learning', clinic:'clinic', profile:'profile', future:'future', 'future-preview':'future', 'game-anatomy-run':'anatomyRun'};
-const NAV_OF = {home:'home', explore:'explore', 'cat':'explore', 'game-anatomy-run':'library', library:'library', learning:'learning', clinic:'explore', future:'explore', 'future-preview':'explore', profile:'profile'};
+const ROUTES = {home:'home', explore:'explore', library:'library', learning:'learning', clinic:'clinic', profile:'profile', future:'future', 'future-preview':'future', 'game-anatomy-run':'anatomyRun', 'game-root-cause':'rootCause'};
+const NAV_OF = {home:'home', explore:'explore', 'cat':'explore', 'game-anatomy-run':'library', 'game-root-cause':'library', library:'library', learning:'learning', clinic:'explore', future:'explore', 'future-preview':'explore', profile:'profile'};
 function route(){
   const h = (location.hash || '#home').slice(1) || 'home';
   let html, key = h;
@@ -65,7 +65,8 @@ function route(){
   });
 }
 function announce(events){
-  const lv = events.filter(e => e.kind === 'level'), sg = events.filter(e => e.kind === 'stage');
+  const lv = events.filter(e => e.kind === 'level'), sg = events.filter(e => e.kind === 'stage'), rc = events.filter(e => e.kind === 'rc');
+  if(rc.length && !lv.length && !sg.length){ toast(rc.length === 1 ? `Root Cause: ${GE.RC_CASES[rc[0].id]} · +${rc[0].sp} sparks, +${rc[0].xp} XP` : `${rc.length} Root Cause cases: +${rc.reduce((a, e) => a + e.sp, 0)} sparks`); return; }
   if(sg.length) toast(`World ${sg.map(e => e.n).join(', ')} complete! New buildings unlocked in Jo's Clinic`);
   else if(lv.length) toast(lv.length === 1 ? `Level ${lv[0].n}: +${lv[0].sp} sparks, +${lv[0].xp} XP` : `${lv.length} levels: +${lv.reduce((a, e) => a + e.sp, 0)} sparks`);
 }
@@ -137,7 +138,7 @@ function walkSync(){ if(walkI >= 0) walkRender(); }
 /* ---------- init ---------- */
 $('walkBtn').addEventListener('click', () => { walkI = walkI < 0 ? 0 : -1; if(walkI === 0) location.hash = WALK[0].go; walkRender(); });
 window.addEventListener('hashchange', route);
-window.addEventListener('storage', e => { if(e.key === GE.state.AR_KEY) route(); });
+window.addEventListener('storage', e => { if(e.key === GE.state.AR_KEY || e.key === GE.state.RC_KEY) route(); });
 document.addEventListener('visibilitychange', () => {   // back from the Anatomy Run tab: pick up new progress
   if(document.hidden) return; const h = (location.hash || '#home').slice(1);
   if(h === 'clinic'){ const ev = GE.state.syncEvidence(); refreshHud(); announce(ev); }

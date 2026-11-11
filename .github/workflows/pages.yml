@@ -36,7 +36,7 @@ jobs:
       - name: Stage only the public files
         run: |
           mkdir -p _site/.well-known
-          cp -r index.html 404.html robots.txt .nojekyll css js icons _site/
+          cp -r index.html 404.html robots.txt .nojekyll css js icons root-cause _site/
           cp .well-known/security.txt _site/.well-known/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4

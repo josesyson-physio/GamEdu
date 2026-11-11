@@ -14,6 +14,12 @@ function arCard(){
     <div class="body"><span class="subj">Physiotherapy · Anatomy & clinical reasoning</span><h3>Anatomy Run</h3><p>${esc(GE.GAMES[0].desc)}</p>
     <div class="foot"><span class="status">${ev.realCount ? `${ev.realCount}/22 levels solved` : 'Free · play now'}</span><span class="cta">${ev.realCount ? 'Continue' : 'Play'} →</span></div></div></a>`;
 }
+function rcCard(){
+  const rc = GE.state.readRootCause();
+  return `<a class="gcard" href="#game-root-cause"><div class="art">${A().cardArt('root-cause')}<span class="kind">New game</span></div>
+    <div class="body"><span class="subj">Physiotherapy · Assessment & treatment</span><h3>Root Cause: Body City</h3><p>${esc(GE.GAMES[1].desc)}</p>
+    <div class="foot"><span class="status">${rc.count ? `${rc.count}/10 cases solved` : 'Free · play now'}</span><span class="cta">${rc.count ? 'Continue' : 'Play'} →</span></div></div></a>`;
+}
 function clinicCard(){
   const sc = GE.state.setupScore();
   return `<a class="gcard reward" href="#clinic"><div class="art">${A().cardArt('clinic')}<span class="kind gold">Rewards</span></div>
@@ -47,7 +53,7 @@ function home(){
       <div class="meter"><i style="--p:${Math.round(ev.realCount / 22 * 100)}%"></i></div><p>${ev.ar.found ? 'Progress read from Anatomy Run on this device.' : 'No Anatomy Run progress on this device yet. It appears here automatically after you play in this browser.'}</p>
       <div class="row"><a class="btn gold" href="#game-anatomy-run">Continue</a><a class="btn ghost" href="#clinic">Spend rewards in Jo's Clinic</a></div></div></div></section>
   <section class="wrap"><div class="sechead"><h2>Explore categories</h2><a href="#explore">All categories →</a></div><div class="grid3">${GE.CATEGORIES.map(catCard).join('')}</div></section>
-  <section class="wrap two"><div><div class="sechead"><h2>Popular now</h2></div><ul class="rank"><li><span class="n">1</span><a href="#game-anatomy-run"><b>Anatomy Run</b><small>Physiotherapy · 22 levels</small></a></li></ul></div>
+  <section class="wrap two"><div><div class="sechead"><h2>Popular now</h2></div><ul class="rank"><li><span class="n">1</span><a href="#game-anatomy-run"><b>Anatomy Run</b><small>Physiotherapy · 22 levels</small></a></li><li><span class="n">2</span><a href="#game-root-cause"><b>Root Cause: Body City</b><small>Physiotherapy · 10 cases</small></a></li></ul></div>
     <div><div class="sechead"><h2>New experiences</h2></div><ul class="news"><li><b>Jo's Clinic rewards</b><span>Turn the points and skills you earn into your own clinic.</span></li><li><b>Basics of Rocket Science</b><span>A new world in development.</span></li><li><b>AI in Remote Areas</b><span>A new world in development.</span></li></ul></div></section>
   <section class="wrap"><div class="sechead"><h2>My learning journey</h2><a href="#learning">Skill map →</a></div>${journeyStrip()}</section>`;
 }
@@ -68,12 +74,12 @@ function category(id){
 function physio(){
   const ev = GE.state.evidence();
   return `<section class="catworld env-physio"><div class="art">${A().cardArt('physio')}</div><div class="wrap">${crumb(['Explore', '#explore'], ['Physiotherapy', ''])}${statusPill('available')}<h1>Physiotherapy & Health Sciences</h1><p>Play to learn, earn sparks and skills, and build your own clinic.</p></div></section>
-  <section class="wrap"><div class="sechead"><h2>Game</h2></div><div class="grid3">${arCard()}<div class="gcard ghostcard"><div class="body"><span class="subj">In development</span><h3>More physiotherapy games</h3><p>New games will join this world and feed the same rewards and the same clinic.</p></div></div></div></section>
+  <section class="wrap"><div class="sechead"><h2>Games</h2></div><div class="grid3">${arCard()}${rcCard()}<div class="gcard ghostcard"><div class="body"><span class="subj">In development</span><h3>More physiotherapy games</h3><p>New games will join this world and feed the same rewards and the same clinic.</p></div></div></div></section>
   <section class="wrap"><div class="sechead"><h2>Rewards: Jo's Clinic</h2><a href="#clinic">Open the clinic →</a></div>${loopDiagram()}
     <div class="grid3 mt">${clinicCard()}<a class="gcard" href="#learning"><div class="body"><span class="subj">Your progress</span><h3>Skill map</h3><p>22 case skills across 4 worlds. ${ev.count} earned so far.</p><div class="foot"><span class="status">${GE.state.stagesComplete(ev)}/4 worlds</span><span class="cta">View →</span></div></div></a>
     <a class="gcard" href="#future"><div class="body"><span class="subj">Ultimate goal</span><h3>Futuristic Smart Clinic</h3><p>Robotics, AI movement analysis, hydrotherapy and research, revealed world by world.</p><div class="foot"><span class="status">${S().buildings.smart ? 'Built' : 'Locked'}</span><span class="cta">Preview →</span></div></div></a></div></section>
   <section class="wrap"><div class="sechead"><h2>Skill areas</h2></div><div class="chips">${GE.PHYSIO_SKILLS.map(s => `<span class="chip">${esc(s)}</span>`).join('')}</div>
-    <div class="sechead mt"><h2>How the learning builds</h2></div>${millerLadder()}<p class="muted small">Based on Miller's pyramid of clinical competence. Anatomy Run builds “knows” and “knows how”; future games add “shows how”. “Does” only happens in supervised clinical practice.</p></section>`;
+    <div class="sechead mt"><h2>How the learning builds</h2></div>${millerLadder()}<p class="muted small">Based on Miller's pyramid of clinical competence. Anatomy Run builds “knows” and “knows how”; Root Cause practises treatment choices (“shows how” in simulation). “Does” only happens in supervised clinical practice.</p></section>`;
 }
 function millerLadder(){
   return `<ol class="miller">${GE.MILLER.slice().reverse().map((m, i) => `<li class="m-${m.id}" style="--w:${55 + i * 15}%"><b>${esc(m.name)}</b><span>${esc(m.desc)}</span><small>${esc(m.where)}</small></li>`).join('')}</ol>`;
@@ -96,9 +102,24 @@ function anatomyRun(){
     <div><div class="sechead"><h2>In the game</h2></div><ul class="ticks">${keep.map(k => `<li>${esc(k)}</li>`).join('')}</ul></div></section>`;
 }
 
+/* ---------- GAME PAGE: Root Cause: Body City ---------- */
+function rootCause(){
+  const rc = GE.state.readRootCause(), R = GE.REWARD;
+  const how = ['Investigate: pick the right tests, spot the red flag, name the root cause','Arena: clear each symptom with the treatment that fits it','Symptoms keep coming back until the root cause is treated','Debrief: the full chain from cause to management, with the library references'];
+  return `<section class="gamehero"><div class="art">${A().cardArt('root-cause')}</div><div class="wrap">${crumb(['Physiotherapy', '#cat-physio'], ['Root Cause: Body City', ''])}<span class="pill st-available">New game</span><h1>Root Cause: Body City</h1>
+    <p>A city built inside the human body. Ten districts, ten common painful conditions. Treat the symptoms to break through, then take down the root cause.</p>
+    <div class="row"><a class="btn gold big" href="${GE.ROOT_CAUSE_URL}" id="launchRC">Enter Body City</a><a class="btn ghost light" href="#clinic">Spend rewards in Jo's Clinic</a></div>
+    <p class="note">Clinical content adapted from the Learn Anywhere library (CC BY-NC-SA 4.0). Draft, pending clinical panel review.</p></div></section>
+  <section class="wrap two"><div><div class="sechead"><h2>Rewards you earn</h2></div>
+    <ul class="rewards-list"><li><b>${R.levelSparks}</b> sparks for each case solved</li><li><b>+${R.starSparks}</b> sparks for every star (up to 3)</li><li><b>1 treatment skill</b> for every case</li><li>Stars: solve it, get every investigation call right first time, keep Jo's energy at 3 or more</li></ul>
+    <div class="stat-grid mt"><div><b>${rc.count}/10</b><span>cases solved</span></div><div><b>${Object.values(rc.stars).filter(x => x === 3).length}</b><span>perfect cases</span></div></div>
+    <div class="sechead mt"><h2>Treatment skills</h2></div><div class="chips">${GE.state.treatmentSkills().map(x => `<span class="chip ${x.stars ? 'got' : ''}">${esc(x.name)}${x.stars ? ` <small>${starStr(x.stars)}</small>` : ''}</span>`).join('')}</div></div>
+    <div><div class="sechead"><h2>How a case works</h2></div><ul class="ticks">${how.map(k => `<li>${esc(k)}</li>`).join('')}</ul><p class="muted small">Educational only, not medical advice.</p></div></section>`;
+}
+
 /* ---------- LIBRARY ---------- */
 function library(){
-  return `<section class="wrap pagehead"><span class="eyebrow">My library</span><h1>Your games</h1><p>Everything you can play now, and what's coming.</p></section><section class="wrap"><div class="grid3">${arCard()}</div></section>
+  return `<section class="wrap pagehead"><span class="eyebrow">My library</span><h1>Your games</h1><p>Everything you can play now, and what's coming.</p></section><section class="wrap"><div class="grid3">${arCard()}${rcCard()}</div></section>
   <section class="wrap"><div class="sechead"><h2>Coming to your library</h2></div><ul class="planned"><li>${lockI}<b>More physiotherapy games</b> · in development</li><li>${lockI}<b>Basics of Rocket Science</b> · new world</li><li>${lockI}<b>AI in Remote Areas</b> · new world</li></ul></section>`;
 }
 
@@ -117,9 +138,13 @@ function learning(){
       <div class="unlock"><b>Unlocks in Jo's Clinic:</b> ${esc(unlocks)} · +${st.bonus} sparks. <b>Upgrades:</b> 2★ on every case allows level 2, 3★ allows level 3.</div>
     </div></li>`;
   }).join('');
-  const smart = S().buildings.smart;
-  return `<section class="wrap pagehead">${crumb(['Physiotherapy', '#cat-physio'], ['Skill map', ''])}<h1>Skill map</h1><p>Every Anatomy Run case you solve becomes a skill. Completing a world unlocks new buildings in Jo's Clinic. Sparks build; they never buy a skill.</p></section>
+  const smart = S().buildings.smart, tsk = GE.state.treatmentSkills();
+  return `<section class="wrap pagehead">${crumb(['Physiotherapy', '#cat-physio'], ['Skill map', ''])}<h1>Skill map</h1><p>Every Anatomy Run case and every Root Cause case you solve becomes a skill. Completing a world unlocks new buildings in Jo's Clinic. Sparks build; they never buy a skill.</p></section>
   <section class="wrap"><ol class="stages">${rows}
+    <li class="stage ${tsk.some(x => x.stars) ? 'active' : 'next'}"><div class="node"><span>RC</span></div><div class="card"><span class="eyebrow">Root Cause: Body City · 10 cases</span><h3>Treatment skills</h3><p class="muted small">Find the root cause, treat the symptoms that fit each tool, then treat the cause.</p>
+      <div class="frame"><span class="mtag m-knowshow">Knows how</span><span class="mtag m-showshow">Shows how</span></div>
+      <ul class="skills">${tsk.map(x => `<li class="${x.stars ? 'got' : ''}"><span class="dot"></span>${esc(x.name)}<small>${x.stars ? starStr(x.stars) : 'Solve in Body City'}</small></li>`).join('')}</ul>
+      <div class="row"><a class="btn ghost" href="#game-root-cause">Play Root Cause</a></div></div></li>
     <li class="stage ${smart ? 'done' : 'goal'}"><div class="node"><span>★</span></div><div class="card"><span class="eyebrow">Ultimate goal</span><h3>Futuristic Smart Clinic</h3><p>Complete all four worlds, build every other building in Jo's Clinic, then build the Smart Clinic.</p><div class="row"><a class="btn gold" href="#clinic">Go to Jo's Clinic</a><a class="btn ghost" href="#future">Preview it</a></div></div></li>
     <li class="stage future"><div class="node"><span>+</span></div><div class="card"><span class="eyebrow">Coming next</span><h3>More physiotherapy games</h3><p>New games will add more skills, including hands-on “shows how” practice, and feed the same clinic.</p></div></li></ol>
   <p class="muted small disclaimer">Game skills show learning progress. They are not professional qualifications or clinical certification.</p></section>`;
@@ -169,7 +194,7 @@ function profile(){
   return `<section class="wrap profile"><div class="pcard"><div class="avatar" id="profAv"></div><div class="who"><span class="eyebrow">Player</span><h1>Jo</h1><p class="rank">Level ${L.level} · ${esc(L.title)}</p>
       <div class="xpbar"><i style="--p:${pct}%"></i></div><small>${s.xp} XP${L.to ? ` · ${L.to - s.xp} XP to ${esc(L.nextTitle)}` : ''}</small>
       <div class="looks" role="radiogroup" aria-label="Jo's look"><button type="button" class="look ${s.look === 0 ? 'on' : ''}" data-l="0" role="radio" aria-checked="${s.look === 0}">Look 1</button><button type="button" class="look ${s.look === 1 ? 'on' : ''}" data-l="1" role="radio" aria-checked="${s.look === 1}">Look 2</button></div></div>
-    <div class="stat-grid"><div><b>${s.xp}</b><span>Platform XP</span></div><div><b>${s.sparks}</b><span>Sparks</span></div><div><b>${got.length}/22</b><span>Case skills</span></div><div><b>${GE.state.setupScore()}/36</b><span>Clinic setup</span></div></div></div>
+    <div class="stat-grid"><div><b>${s.xp}</b><span>Platform XP</span></div><div><b>${s.sparks}</b><span>Sparks</span></div><div><b>${got.length}/22</b><span>Case skills</span></div><div><b>${GE.state.readRootCause().count}/10</b><span>Treatment skills</span></div><div><b>${GE.state.setupScore()}/36</b><span>Clinic setup</span></div></div></div>
   </section>
   <section class="wrap two"><div><div class="sechead"><h2>Skills earned</h2></div>${got.length ? `<div class="chips">${got.map(x => `<span class="chip got">${esc(x.name)} <small>${starStr(x.stars)}</small></span>`).join('')}</div>` : '<p class="muted">No skills yet. Solve your first Anatomy Run level.</p>'}
     <div class="sechead mt"><h2>Achievement badges</h2></div><ul class="badges">${GE.BADGES.map(b => `<li class="${s.badges[b.id] ? 'on' : ''}"><span class="medal">${s.badges[b.id] ? sparkI : lockI}</span><b>${esc(b.name)}</b><small>${esc(b.desc)}</small></li>`).join('')}</ul></div>
@@ -177,10 +202,10 @@ function profile(){
     <div class="sechead mt"><h2>Upcoming unlocks</h2></div><ul class="planned">${upcoming.length ? upcoming.map(b => `<li>${lockI}<b>${esc(b.name)}</b> · ${esc(GE.state.buildingState(b, ev).req)}</li>`).join('') : '<li>Everything unlocked. Build the Smart Clinic!</li>'}</ul></div></section>
   <section class="wrap"><div class="sechead"><h2>Activity ledger</h2><span class="pill st-soon">Simulated demo progress</span></div><div class="ledger"><table><thead><tr><th>Activity</th><th>Sparks</th><th>XP</th><th></th></tr></thead><tbody>
     ${s.tx.slice().reverse().slice(0, 16).map(t => `<tr><td>${esc(t.label)}</td><td class="${t.sparks < 0 ? 'neg' : 'pos'}">${t.sparks > 0 ? '+' : ''}${t.sparks || '–'}</td><td>${t.xp ? '+' + t.xp : '–'}</td><td>${t.sim ? '<span class="simtag">simulated</span>' : '<span class="realtag">from game</span>'}</td></tr>`).join('')}</tbody></table></div></section>
-  <section class="wrap"><div class="danger"><div><b>Reset demo progress</b><span>Clears the platform's demo state on this device. Anatomy Run's own save is not touched.</span></div><button class="btn ghost" id="resetAsk" type="button">Reset demo</button><div id="resetConfirm" hidden><span>Reset everything?</span><button class="btn danger-btn" id="resetYes" type="button">Yes, reset</button><button class="btn ghost" id="resetNo" type="button">Cancel</button></div></div>
+  <section class="wrap"><div class="danger"><div><b>Reset demo progress</b><span>Clears the platform's demo state on this device. The Anatomy Run and Root Cause saves are not touched.</span></div><button class="btn ghost" id="resetAsk" type="button">Reset demo</button><div id="resetConfirm" hidden><span>Reset everything?</span><button class="btn danger-btn" id="resetYes" type="button">Yes, reset</button><button class="btn ghost" id="resetNo" type="button">Cancel</button></div></div>
   <p class="muted small">No account, no name, no payments and no tracking. Progress is stored only in this browser.</p></section>`;
 }
 function notFound(){ return `<section class="wrap pagehead"><h1>Page not found</h1><p><a href="#home">Back home</a></p></section>`; }
 
-GE.views = {home, explore, category, anatomyRun, library, learning, clinic, buildingPanel, future, profile, notFound};
+GE.views = {home, explore, category, anatomyRun, rootCause, library, learning, clinic, buildingPanel, future, profile, notFound};
 })();
