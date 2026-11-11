@@ -54,7 +54,7 @@ function home(){
       <div class="row"><a class="btn gold" href="#game-anatomy-run">Continue</a><a class="btn ghost" href="#clinic">Spend rewards in Jo's Clinic</a></div></div></div></section>
   <section class="wrap"><div class="sechead"><h2>Explore categories</h2><a href="#explore">All categories →</a></div><div class="grid3">${GE.CATEGORIES.map(catCard).join('')}</div></section>
   <section class="wrap two"><div><div class="sechead"><h2>Popular now</h2></div><ul class="rank"><li><span class="n">1</span><a href="#game-anatomy-run"><b>Anatomy Run</b><small>Physiotherapy · 22 levels</small></a></li><li><span class="n">2</span><a href="#game-root-cause"><b>Root Raid: Body City</b><small>Physiotherapy · 10 cases</small></a></li></ul></div>
-    <div><div class="sechead"><h2>New experiences</h2></div><ul class="news"><li><b>Jo's Clinic rewards</b><span>Turn the points and skills you earn into your own clinic.</span></li><li><b>Basics of Rocket Science</b><span>A new world in development.</span></li><li><b>AI in Remote Areas</b><span>A new world in development.</span></li></ul></div></section>
+    <div><div class="sechead"><h2>New experiences</h2></div><ul class="news"><li><b>Jo's Clinic rewards</b><span>Turn the points and skills you earn into your own clinic.</span></li><li><b>Liftoff Lab</b><span>Rocket Science is live: explode, name and launch a rocket.</span></li><li><b>Village Lab</b><span>AI in Remote Areas is live: build smart fixes for real village problems.</span></li></ul></div></section>
   <section class="wrap"><div class="sechead"><h2>My learning journey</h2><a href="#learning">Skill map →</a></div>${journeyStrip()}</section>`;
 }
 
@@ -66,6 +66,15 @@ function explore(){
 function category(id){
   const c = GE.CATEGORIES.find(x => x.id === id); if(!c) return notFound();
   if(c.id === 'physio') return physio();
+  const g = GE.WORLD_GAMES[c.id];
+  if(g){ const wg = GE.state.readWorldGame(c.id), n = Object.keys(g.units).length, st = Object.values(wg.stars).reduce((a, b) => a + b, 0);
+    return `<section class="catworld env-${c.env}"><div class="art">${A().cardArt(c.id)}</div><div class="wrap">${crumb(['Explore', '#explore'], [c.short, ''])}${statusPill(c.status)}<h1>${esc(c.name)}</h1><p>${esc(c.blurb)}</p></div></section>
+    <section class="wrap"><div class="sechead"><h2>Game</h2></div><div class="grid3"><a class="gcard" href="${g.url}" id="launchWG"><div class="art">${A().cardArt(c.id)}<span class="kind">New game</span></div>
+      <div class="body"><span class="subj">${esc(g.subject)}</span><h3>${esc(g.name)}</h3><p>${esc(g.desc)}</p><div class="foot"><span class="status">${wg.count ? `${wg.count}/${n} ${g.unitName}s \u00b7 ${st}\u2605` : 'Free \u00b7 play now'}</span><span class="cta">${wg.count ? 'Continue' : 'Play'} \u2192</span></div></div></a>
+      <div class="gcard ghostcard"><div class="body"><span class="subj">What you learn</span><h3>Skills in this game</h3><ul class="ticks">${g.learn.map(l => `<li>${esc(l)}</li>`).join('')}</ul></div></div></div></section>
+    <section class="wrap two"><div><div class="sechead"><h2>Your progress</h2></div><ul class="rewards-list">${Object.entries(g.units).map(([k, name]) => `<li><b>${wg.stars[k] ? starStr(wg.stars[k]) : '\u2606\u2606\u2606'}</b> ${esc(name)}${wg.best[k] != null && c.id === 'ai-remote' ? ` \u00b7 best ${wg.best[k]}/100` : ''}</li>`).join('')}</ul>
+      <p class="muted small">Each ${g.unitName} pays ${GE.REWARD.levelSparks} sparks, +${GE.REWARD.starSparks} per star. Sparks go into the same wallet as Physiotherapy.</p></div>
+      <div><div class="sechead"><h2>Coming next</h2></div><ul class="planned">${c.planned.map(p => `<li>${lockI}${esc(p)}</li>`).join('')}</ul><p class="muted small">${esc(c.note || '')}</p></div></section>`; }
   return `<section class="catworld env-${c.env}"><div class="art">${A().cardArt(c.id)}</div><div class="wrap">${crumb(['Explore', '#explore'], [c.short, ''])}${statusPill(c.status)}<h1>${esc(c.name)}</h1><p>${esc(c.blurb)}</p></div></section>
   <section class="wrap"><div class="soon"><h2>Coming soon</h2><p>This world is in development and not playable yet.</p>
     <h3>What it could include</h3><ul class="planned">${c.planned.map(p => `<li>${lockI}${esc(p)}</li>`).join('')}</ul><p class="muted small">${esc(c.note || '')}</p>
@@ -119,8 +128,8 @@ function rootCause(){
 
 /* ---------- LIBRARY ---------- */
 function library(){
-  return `<section class="wrap pagehead"><span class="eyebrow">My library</span><h1>Your games</h1><p>Everything you can play now, and what's coming.</p></section><section class="wrap"><div class="grid3">${arCard()}${rcCard()}</div></section>
-  <section class="wrap"><div class="sechead"><h2>Coming to your library</h2></div><ul class="planned"><li>${lockI}<b>More physiotherapy games</b> · in development</li><li>${lockI}<b>Basics of Rocket Science</b> · new world</li><li>${lockI}<b>AI in Remote Areas</b> · new world</li></ul></section>`;
+  return `<section class="wrap pagehead"><span class="eyebrow">My library</span><h1>Your games</h1><p>Everything you can play now, and what's coming.</p></section><section class="wrap"><div class="grid3">${arCard()}${rcCard()}${Object.entries(GE.WORLD_GAMES).map(([cat, g]) => `<a class="gcard" href="${g.url}"><div class="art">${A().cardArt(cat)}<span class="kind">New game</span></div><div class="body"><span class="subj">${esc(GE.CATEGORIES.find(c => c.id === cat).short)}</span><h3>${esc(g.name)}</h3><p>${esc(g.desc)}</p><div class="foot"><span class="status">Free \u00b7 play now</span><span class="cta">Play \u2192</span></div></div></a>`).join('')}</div></section>
+  <section class="wrap"><div class="sechead"><h2>Coming to your library</h2></div><ul class="planned"><li>${lockI}<b>More physiotherapy games</b> · in development</li><li>${lockI}<b>More Rocket Science games</b> · Thrust Tuner, Orbit Golf</li><li>${lockI}<b>More AI in Remote Areas games</b> · Signal Hunt, Data Detective</li></ul></section>`;
 }
 
 /* ---------- SKILL MAP ---------- */

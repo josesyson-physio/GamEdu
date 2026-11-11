@@ -45,21 +45,26 @@ check(!/<form|type="password"|razorpay|stripe|paypal|gtag\(|google-analytics|fbq
 check(![/AKIA[0-9A-Z]{16}/, /gh[pousr]_[A-Za-z0-9]{36}/, /github_pat_/, /sk-[A-Za-z0-9]{32,}/, /AIza[0-9A-Za-z_-]{35}/, /-----BEGIN [A-Z ]*PRIVATE KEY/].some(re => re.test(html + allJs)), 'no keys, tokens or secrets');
 // 8. user-visible content escaped
 check(/const esc = /.test(js['js/art.js'] || '') && /esc\(/.test(js['js/views.js'] || ''), 'text is escaped before display');
-// 9. Root Cause: Body City (root-cause/) meets the same rules
-const rcHtml = readFileSync('root-cause/index.html', 'utf8');
-const rcFiles = walk('root-cause').filter(f => f.endsWith('.js'));
-const rcJs = rcFiles.map(f => readFileSync(f, 'utf8')).join('\n');
-const rcScripts = [...rcHtml.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
-check(rcScripts.length > 0 && rcScripts.every(m => /\bsrc="[\w-]+\.js"/.test(m[1]) && !m[2].trim()), `Root Cause: only same-origin script files (${rcScripts.length})`);
-check(!/<[^>]+\son[a-z]+\s*=/i.test(rcHtml), 'Root Cause: no inline on* handlers');
-const rcCsp = (rcHtml.match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)">/) || [])[1] || '';
-check(["default-src 'none'", "script-src 'self'", "connect-src 'none'", "object-src 'none'", "base-uri 'none'", "form-action 'none'"].every(d => rcCsp.includes(d)) && !/script-src[^;]*'unsafe-/.test(rcCsp), 'Root Cause: strict CSP');
-check(![/\beval\s*\(/, /new\s+Function\s*\(/, /document\.write/, /\bfetch\s*\(|XMLHttpRequest|WebSocket|sendBeacon/, /<iframe/i].some(re => re.test(rcJs)), 'Root Cause: no eval, network calls or iframes');
-check(/window\.top !== window\.self/.test(rcJs), 'Root Cause: anti-framing guard present');
-check(!/(setItem|removeItem)\(\s*['"](physio-quest|gamified-edu-demo)['"]/.test(rcJs), 'Root Cause: never writes the Anatomy Run or platform saves');
-check(!/(setItem|removeItem)\(\s*(RC_KEY|['"]root-cause['"])/.test(allJs), 'platform never writes or deletes the Root Cause save');
-check(/const esc = /.test(rcJs) && /CC BY-NC-SA 4\.0/.test(rcJs), 'Root Cause: text escaped and library licence credited');
-for (const h of new Set([...(rcHtml + rcJs).matchAll(/https?:\/\/([a-z0-9.-]+)/gi)].map(m => m[1].toLowerCase()))) check(ALLOWED_HOSTS.has(h), `Root Cause host allowed: ${h}`);
+// 9. every game folder (root-cause/, rocket/, village/) meets the same rules
+const GAMES = ['root-cause', 'rocket', 'village'];
+const rcFiles = [];
+for (const dir of GAMES) {
+  const gHtml = readFileSync(`${dir}/index.html`, 'utf8');
+  const files = walk(dir).filter(f => f.endsWith('.js')); rcFiles.push(...files);
+  const gJs = files.map(f => readFileSync(f, 'utf8')).join('\n');
+  const gScripts = [...gHtml.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+  check(gScripts.length > 0 && gScripts.every(m => /\bsrc="[\w-]+\.js"/.test(m[1]) && !m[2].trim()), `${dir}: only same-origin script files (${gScripts.length})`);
+  check(!/<[^>]+\son[a-z]+\s*=/i.test(gHtml), `${dir}: no inline on* handlers`);
+  const gCsp = (gHtml.match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)">/) || [])[1] || '';
+  check(["default-src 'none'", "script-src 'self'", "connect-src 'none'", "object-src 'none'", "base-uri 'none'", "form-action 'none'"].every(d => gCsp.includes(d)) && !/script-src[^;]*'unsafe-/.test(gCsp), `${dir}: strict CSP`);
+  check(![/\beval\s*\(/, /new\s+Function\s*\(/, /document\.write/, /\bfetch\s*\(|XMLHttpRequest|WebSocket|sendBeacon/, /<iframe/i].some(re => re.test(gJs)), `${dir}: no eval, network calls or iframes`);
+  check(/window\.top !== window\.self/.test(gJs), `${dir}: anti-framing guard present`);
+  check(!/(setItem|removeItem)\(\s*['"](physio-quest|gamified-edu-demo)['"]/.test(gJs), `${dir}: never writes the Anatomy Run or platform saves`);
+  check(/const esc = /.test(gJs), `${dir}: text escaped before display`);
+  for (const h of new Set([...(gHtml + gJs).matchAll(/https?:\/\/([a-z0-9.-]+)/gi)].map(m => m[1].toLowerCase()))) check(ALLOWED_HOSTS.has(h), `${dir} host allowed: ${h}`);
+}
+check(/CC BY-NC-SA 4\.0/.test(readFileSync('root-cause/game.js', 'utf8')), 'root-cause: library licence credited');
+check(!/(setItem|removeItem)\(\s*(RC_KEY|['"](root-cause|rocket-lab|village-lab)['"])/.test(allJs), 'platform never writes or deletes the game saves');
 
 // 10. every JS file parses
 for (const f of [...jsFiles, ...rcFiles]) { try { execFileSync(process.execPath, ['--check', f]); ok.push(`parses: ${f}`); } catch { fail.push(`parses: ${f}`); } }

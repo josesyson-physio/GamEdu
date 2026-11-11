@@ -55,6 +55,29 @@ A second Physiotherapy game, same site, same security rules (own CSP, no inline 
   +20 sparks / +10 XP per star, replays pay the difference; badges "Root cause hunter" and "Body City hero".
   Treatment skills show on the skill map and profile. They do not yet cap clinic upgrades (Anatomy Run skills do).
 
+## Liftoff Lab (`rocket/`), Basics of Rocket Science
+A two-stage rocket drawn in code with 13 parts (nose cone, payload fairing, payload, avionics & guidance, upper stage tanks,
+upper stage engine, interstage, oxidizer tank, fuel tank, fins, turbopump, combustion chamber, nozzle). Four missions, each
+unlocking the next: **Explode It** (tap every part to learn its name, job and a fact), **Name Drop** (put the name tags back),
+**What's Its Job?** (10 rounds: find the part from its job), **Stack & Send** (build bottom-up with a dependency order, wrong picks
+explain what must go under first, then a launch: stage separation, fairing separation, orbit, solar panels unfold).
+Stars from misses. Save key `rocket-lab` `{done:{mode:stars}, best:{mode:seconds}}`.
+
+## Village Lab (`village/`), AI in Remote Areas
+The player is a junior scientist (two looks, own name). Six village problems with a named villager each: Thirsty Fields (farm
+watering), Pill Panic (elderly medicine reminders), Leaf Spot Mystery (crop disease), Night Jumbo Alert (elephant early warning),
+Teacher-less Tuesday (offline tutor), Well, Well, Well (water safety). Steps: **Listen** (ask 3 of 6 questions; good ones add
+field notes), **Define** (sharp vs surface vs too broad), **Build** (pick sense, think, tell, power, connect; cost vs budget, budget
+only known if asked), **Field test** (each choice checked against the village's real limits; going back to fix is rewarded),
+**Pitch** (name, honest impact, who maintains it, what next). **Idea score /100:** real problem 20, empathy 20 (useful questions
++ speaks their language), smart design 20 (sense, think, tell; AI only where it adds value), works in the village 20 (power,
+connect, budget), impact & heart 20 (honest promise, local repair, user feedback), +3 for testing and improving. Tiers: First
+Spark, Bright Idea, Smart Fix (2 stars), Village Hero (85+, 3 stars). The villager reacts in their own words.
+Save key `village-lab` `{done:{id:stars}, best:{id:score}, look, name}`. Scoring is rule-based and runs offline: no AI service.
+
+**Rewards for both:** the platform reads the save (never writes) and pays 40 sparks + 40 XP per mission or project, +20 sparks
+/ +10 XP per star; badges "Liftoff" (satellite launched) and "Village hero" (85+). Sparks share the Physiotherapy wallet.
+
 ## Simulated vs real
 Real: Anatomy Run and its saved levels and stars; all unlock, cap and upgrade rules.
 Simulated (labelled): the 300-spark starting balance; the presenter's "Simulate world" button (2★ per level); the demo ledger;

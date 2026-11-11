@@ -1,12 +1,14 @@
 # Gamified Edu: interactive platform demo
 
 **Learn it. Play it. Master it.** An educational gaming universe. Today it holds one live world, Physiotherapy,
-with two games, **Anatomy Run** and **Root Raid: Body City**, and its reward space, **Jo's Clinic**. Two more worlds are coming: **Basics of Rocket Science**
-and **AI in Remote Areas**.
+with two games, **Anatomy Run** and **Root Raid: Body City**, and its reward space, **Jo's Clinic**. Two more worlds are live too: **Basics of Rocket Science** (Liftoff Lab)
+and **AI in Remote Areas** (Village Lab).
 
 - Live demo: https://josesyson-physio.github.io/GamEdu/
 - Live game: [Anatomy Run](https://josesyson-physio.github.io/anatomy_run/) (unchanged, opened top-level, never embedded)
 - New game: [Root Raid: Body City](https://josesyson-physio.github.io/GamEdu/root-cause/) (in `root-cause/`)
+- Rocket Science: [Liftoff Lab](https://josesyson-physio.github.io/GamEdu/rocket/) (in `rocket/`)
+- AI in Remote Areas: [Village Lab](https://josesyson-physio.github.io/GamEdu/village/) (in `village/`)
 
 ![Home](docs/screenshots/01-home.png)
 
@@ -21,7 +23,9 @@ and **AI in Remote Areas**.
 | Screen | What works |
 |---|---|
 | Home | Isometric hero world, featured, continue playing (real Anatomy Run progress), categories, journey |
-| Explore | Physiotherapy (live), Basics of Rocket Science and AI in Remote Areas (coming soon) |
+| Explore | Physiotherapy, Basics of Rocket Science and AI in Remote Areas, all live |
+| Rocket Science | Liftoff Lab, progress per mission, coming-next game ideas |
+| AI in Remote Areas | Village Lab, best idea score per project, coming-next game ideas |
 | Physiotherapy | Anatomy Run, the reward loop, Jo's Clinic, skill map, Smart Clinic goal |
 | Anatomy Run page | Launches the real game in its own tab; rewards explained; real progress shown |
 | Root Cause page | Launches Body City; rewards, treatment skills and how a case works |
@@ -32,7 +36,7 @@ and **AI in Remote Areas**.
 
 ## Security
 Static site, no backend, no accounts, no payments, no tracking. Strict CSP (scripts from this site only, no network calls),
-anti-framing guard, read-only access to Anatomy Run's save. `node scripts/security-check.mjs` runs 42 checks (including Root Cause); CI blocks deploys that fail.
+anti-framing guard, read-only access to Anatomy Run's save. `node scripts/security-check.mjs` runs 64 checks (including every game folder); CI blocks deploys that fail.
 
 ## Licence
 Copyright (c) 2026 MotionPlus Physio Pvt. Ltd. All rights reserved. See `LICENSE`.

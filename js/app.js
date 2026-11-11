@@ -66,6 +66,8 @@ function route(){
 }
 function announce(events){
   const lv = events.filter(e => e.kind === 'level'), sg = events.filter(e => e.kind === 'stage'), rc = events.filter(e => e.kind === 'rc');
+  const wg = events.filter(e => e.kind === 'wg');
+  if(wg.length && !lv.length && !sg.length && !rc.length){ toast(wg.length === 1 ? `${wg[0].game} \u00b7 ${wg[0].unit}: +${wg[0].sp} sparks, +${wg[0].xp} XP` : `${wg.length} wins: +${wg.reduce((a, e) => a + e.sp, 0)} sparks`); return; }
   if(rc.length && !lv.length && !sg.length){ toast(rc.length === 1 ? `Root Raid: ${GE.RC_CASES[rc[0].id]} · +${rc[0].sp} sparks, +${rc[0].xp} XP` : `${rc.length} Root Raid cases: +${rc.reduce((a, e) => a + e.sp, 0)} sparks`); return; }
   if(sg.length) toast(`World ${sg.map(e => e.n).join(', ')} complete! New buildings unlocked in Jo's Clinic`);
   else if(lv.length) toast(lv.length === 1 ? `Level ${lv[0].n}: +${lv[0].sp} sparks, +${lv[0].xp} XP` : `${lv.length} levels: +${lv.reduce((a, e) => a + e.sp, 0)} sparks`);
@@ -138,7 +140,7 @@ function walkSync(){ if(walkI >= 0) walkRender(); }
 /* ---------- init ---------- */
 $('walkBtn').addEventListener('click', () => { walkI = walkI < 0 ? 0 : -1; if(walkI === 0) location.hash = WALK[0].go; walkRender(); });
 window.addEventListener('hashchange', route);
-window.addEventListener('storage', e => { if(e.key === GE.state.AR_KEY || e.key === GE.state.RC_KEY) route(); });
+window.addEventListener('storage', e => { if(e.key === GE.state.AR_KEY || e.key === GE.state.RC_KEY || e.key === 'rocket-lab' || e.key === 'village-lab') route(); });
 document.addEventListener('visibilitychange', () => {   // back from the Anatomy Run tab: pick up new progress
   if(document.hidden) return; const h = (location.hash || '#home').slice(1);
   if(h === 'clinic'){ const ev = GE.state.syncEvidence(); refreshHud(); announce(ev); }

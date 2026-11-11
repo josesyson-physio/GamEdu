@@ -8,19 +8,20 @@ const SEED_SPARKS = 300;
 const VERSION = 2;
 
 function fresh(){
-  return {v:VERSION, look:0, sparks:SEED_SPARKS, xp:0, buildings:{reception:1}, badges:{}, credited:{}, rcCredited:{}, stagePaid:{}, sim:{}, seenVision:false,
+  return {v:VERSION, look:0, sparks:SEED_SPARKS, xp:0, buildings:{reception:1}, badges:{}, credited:{}, rcCredited:{}, wgCredited:{}, stagePaid:{}, sim:{}, seenVision:false,
     tx:[{t:Date.now(), label:'Demo starting balance', sparks:SEED_SPARKS, xp:0, sim:true}]};
 }
 const num = (v, max) => { v = +v; return Number.isFinite(v) && v >= 0 ? Math.min(Math.floor(v), max) : 0; };
 const obj = v => v && typeof v === 'object' && !Array.isArray(v);
 function sanitize(s){
   s.sparks = num(s.sparks, 1e6); s.xp = num(s.xp, 1e6); s.look = s.look === 1 ? 1 : 0;
-  ['buildings','badges','credited','rcCredited','stagePaid','sim'].forEach(k => { if(!obj(s[k])) s[k] = {}; });
+  ['buildings','badges','credited','rcCredited','wgCredited','stagePaid','sim'].forEach(k => { if(!obj(s[k])) s[k] = {}; });
   const ids = new Set(GE.BUILDINGS.map(b => b.id));
   for(const k of Object.keys(s.buildings)){ if(!ids.has(k)) delete s.buildings[k]; else s.buildings[k] = Math.min(3, num(s.buildings[k], 3)); }
   if(!s.buildings.reception) s.buildings.reception = 1;
   for(const k of Object.keys(s.credited)) s.credited[k] = Math.min(3, num(s.credited[k], 3));
   for(const k of Object.keys(s.sim)) s.sim[k] = Math.min(3, num(s.sim[k], 3));
+  for(const k of Object.keys(s.wgCredited)){ if(!/^[a-z-]+:[a-z]+$/.test(k)) delete s.wgCredited[k]; else s.wgCredited[k] = Math.min(3, num(s.wgCredited[k], 3)); }
   for(const k of Object.keys(s.rcCredited)){ if(!(k in GE.RC_CASES)) delete s.rcCredited[k]; else s.rcCredited[k] = Math.min(3, num(s.rcCredited[k], 3)); }
   if(!Array.isArray(s.tx)) s.tx = []; s.tx = s.tx.slice(-80);
   s.seenVision = !!s.seenVision;
@@ -54,6 +55,13 @@ function readRootCause(){
     for(const [k, v] of Object.entries(rc.done)) if(Object.prototype.hasOwnProperty.call(GE.RC_CASES, k)) stars[k] = Math.max(1, Math.min(3, num(v, 3)));
     return {found:true, stars, count:Object.keys(stars).length};
   }catch(e){ return {found:false, stars:{}, count:0}; }
+}
+/* other worlds' games: same-site saves, read only */
+function readWorldGame(cat){
+  const g = GE.WORLD_GAMES[cat]; if(!g) return {found:false, stars:{}, count:0, best:{}};
+  try{ const s = JSON.parse(localStorage.getItem(g.key)); if(!obj(s) || !obj(s.done)) return {found:false, stars:{}, count:0, best:{}};
+    const stars = {}, best = {}; for(const k of Object.keys(g.units)){ if(s.done[k] != null) stars[k] = Math.max(1, Math.min(3, num(s.done[k], 3))); if(obj(s.best) && s.best[k] != null) best[k] = num(s.best[k], 100000); }
+    return {found:true, stars, count:Object.keys(stars).length, best}; }catch(e){ return {found:false, stars:{}, count:0, best:{}}; }
 }
 function treatmentSkills(){ const rc = readRootCause(); return Object.keys(GE.RC_CASES).map(id => ({id, name:GE.RC_CASES[id], stars:rc.stars[id] || 0})); }
 
@@ -139,6 +147,12 @@ function syncEvidence(){
       events.push({kind:'rc', id, sp, xp});
     }
   }
+  for(const cat of Object.keys(GE.WORLD_GAMES)){ const g = GE.WORLD_GAMES[cat], wg = readWorldGame(cat);
+    for(const [k, stars] of Object.entries(wg.stars)){ const id = g.key + ':' + k, had = S.wgCredited[id] || 0;
+      if(stars > had){ const sp = (had ? 0 : R.levelSparks) + (stars - had) * R.starSparks, xp = (had ? 0 : R.levelXp) + (stars - had) * R.starXp;
+        S.wgCredited[id] = stars; grant(`${g.name}: ${g.units[k]} (${stars}\u2605)`, sp, xp, false); events.push({kind:'wg', game:g.name, unit:g.units[k], sp, xp}); } } }
+  if(readWorldGame('rocket').stars.stack) badge('liftoff');
+  if(Object.values(readWorldGame('ai-remote').best).some(b => b >= 85)) badge('villageHero');
   if(rc.count >= 1) badge('rootFirst');
   if(rc.count >= 10) badge('rootAll');
   if(ev.count >= 1) badge('firstLevel');
@@ -170,5 +184,5 @@ function levelInfo(){
 }
 
 GE.state = {get:() => S, save, on:f => listeners.push(f), readAnatomyRun, evidence, stageDone, stageProgress, stagesComplete, skills,
-  buildingState, buyBuilding, setupScore, syncEvidence, simulateWorld, markVision, setLook, reset, levelInfo, badge, readRootCause, treatmentSkills, KEY, AR_KEY, RC_KEY};
+  buildingState, buyBuilding, setupScore, syncEvidence, simulateWorld, markVision, setLook, reset, levelInfo, badge, readRootCause, treatmentSkills, readWorldGame, KEY, AR_KEY, RC_KEY};
 })();

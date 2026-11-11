@@ -3,17 +3,28 @@
 window.GE = window.GE || {};
 GE.ANATOMY_RUN_URL = 'https://josesyson-physio.github.io/anatomy_run/';
 GE.ROOT_CAUSE_URL = 'root-cause/';
+/* games in the other worlds. Each keeps its own save; the platform reads it (never writes) and pays sparks per unit. */
+GE.WORLD_GAMES = {
+  rocket:{id:'liftoff', name:'Liftoff Lab', url:'rocket/', key:'rocket-lab', subject:'Rocket parts \u00b7 Names and jobs', unitName:'mission',
+    desc:'Explode a two-stage rocket, learn all 13 parts, name them, match their jobs, then stack it back and launch a satellite to orbit.',
+    units:{explore:'Explode It', name:'Name Drop', job:'What\u2019s Its Job?', stack:'Stack & Send'},
+    learn:['13 rocket parts and what each one does','Why rockets carry their own oxygen','How staging drops dead weight','Newton\u2019s third law in action'], badge:'liftoff'},
+  'ai-remote':{id:'village', name:'Village Lab', url:'village/', key:'village-lab', subject:'Junior scientist \u00b7 Design thinking', unitName:'project',
+    desc:'Listen to a villager, define the real problem, build a fix from sensors and AI, field-test it and pitch it. Scored out of 100.',
+    units:{farm:'Thirsty Fields', ajji:'Pill Panic', leaf:'Leaf Spot Mystery', jumbo:'Night Jumbo Alert', school:'Teacher-less Tuesday', well:'Well, Well, Well'},
+    learn:['Listening before building (empathy)','Defining a sharp, real problem','Sense, think, tell, power, connect','Using AI only where it adds value','Designing for no internet, power cuts and tight budgets'], badge:'villageHero'}
+};
 
 GE.CATEGORIES = [
   {id:'physio', name:'Physiotherapy & Health Sciences', short:'Physiotherapy', status:'available', env:'physio',
    blurb:'Learn the body through play, earn skills and build your own clinic.',
    planned:['Anatomy Run (live now)','More physiotherapy games (in development)']},
-  {id:'rocket', name:'Basics of Rocket Science', short:'Rocket Science', status:'soon', env:'rocket',
-   blurb:'How rockets fly, from thrust and gravity to stages and orbit, learned by building and launching.',
-   planned:['Thrust, gravity and drag','Fuel, stages and staging','Reaching orbit'], note:'Early ideas; the final games may change.'},
-  {id:'ai-remote', name:'AI in Remote Areas', short:'AI in Remote Areas', status:'soon', env:'ai',
-   blurb:'How AI can bring healthcare, learning and support to places far from cities.',
-   planned:['AI health screening in villages','Telehealth with low connectivity','AI for farming and daily life'], note:'Early ideas; the final games may change.'}
+  {id:'rocket', name:'Basics of Rocket Science', short:'Rocket Science', status:'available', env:'rocket',
+   blurb:'Blow a rocket apart, learn every part and its job, then stack it back and launch a satellite.',
+   planned:['Thrust Tuner: balance fuel against weight to reach orbit','Countdown Crew: run the launch-day checklist before the clock hits zero','Orbit Golf: fire short engine burns to land in the right orbit','Moon Shot: plan stages and a gravity slingshot'], note:'Ideas for the next rocket games; the final list may change.'},
+  {id:'ai-remote', name:'AI in Remote Areas', short:'AI in Remote Areas', status:'available', env:'ai',
+   blurb:'Be a junior scientist: take a real village problem and build a smart fix that works with patchy power, no internet and a tight budget.',
+   planned:['Signal Hunt: design for places with zero network','Data Detective: label photos to train a fair AI','Voice First: build for people who can\u2019t read','Village Expo: pitch your best ideas to a panel'], note:'Ideas for the next games in this world; the final list may change.'}
 ];
 GE.STATUS_LABEL = {available:'Available', soon:'Coming soon', future:'Future expansion'};
 
@@ -90,12 +101,14 @@ GE.BADGES = [
   {id:'upgrade', name:'Upgrader', desc:'Upgraded a building to level 2'},
   {id:'smart', name:'Futuristic clinic', desc:'Built the Futuristic Smart Clinic'},
   {id:'rootFirst', name:'Root cause hunter', desc:'Closed a Root Raid: Body City case'},
-  {id:'rootAll', name:'Body City hero', desc:'Solved all 10 Root Raid cases'}
+  {id:'rootAll', name:'Body City hero', desc:'Closed all 10 Root Raid cases'},
+  {id:'liftoff', name:'Liftoff', desc:'Launched a satellite in Liftoff Lab'},
+  {id:'villageHero', name:'Village hero', desc:'Scored 85+ on a Village Lab project'}
 ];
 /* Learning frame: Miller's pyramid. Anatomy Run builds "knows" and "knows how". */
 GE.MILLER = [
   {id:'knows', name:'Knows', desc:'Facts and concepts', where:'Clue gems and flashcards in Anatomy Run'},
   {id:'knowshow', name:'Knows how', desc:'Applies knowledge to a case', where:'Diagnosis and reasoning checks in Anatomy Run'},
-  {id:'showshow', name:'Shows how', desc:'Performs a skill in simulation', where:'Treatment choices in Root Raid; more future games'},
+  {id:'showshow', name:'Shows how', desc:'Performs a skill in simulation', where:'Treatment choices in Root Raid; building and testing in Liftoff Lab and Village Lab'},
   {id:'does', name:'Does', desc:'Performs with real patients', where:'Supervised clinical placement only, never in a game'}
 ];
