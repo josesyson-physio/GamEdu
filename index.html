@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'none'; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests">
+<meta name="referrer" content="no-referrer">
+<title>Gamified Edu</title>
+<meta name="description" content="Gamified Edu: an educational gaming universe. Play Anatomy Run and Assessment Lab, build skills and grow Jo's Clinic into a futuristic smart rehabilitation centre. Interactive demo.">
+<meta name="theme-color" content="#173F31">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Unbounded:wght@500..900&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<svg width="0" height="0" class="sprites" aria-hidden="true">
+ <symbol id="ic-spark" viewBox="0 0 16 16"><path d="M8 0l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="currentColor"/></symbol>
+ <symbol id="ic-xp" viewBox="0 0 16 16"><path d="M8 1l2 4.5 5 .7-3.6 3.4.9 5L8 12.3 3.7 14.6l.9-5L1 6.2l5-.7z" fill="currentColor"/></symbol>
+ <symbol id="ic-lock" viewBox="0 0 16 16"><path d="M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7zm2 0h4V5a2 2 0 0 0-4 0z" fill="currentColor"/></symbol>
+ <symbol id="ic-home" viewBox="0 0 24 24"><path d="M3 11 12 4l9 7v9h-6v-6H9v6H3z" fill="currentColor"/></symbol>
+ <symbol id="ic-explore" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm4 6-6 2-2 6 6-2z" fill="currentColor"/></symbol>
+ <symbol id="ic-play" viewBox="0 0 24 24"><path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2zm3 3v2H5v2h2v2h2v-2h2v-2H9V9zm9 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z" fill="currentColor"/></symbol>
+ <symbol id="ic-clinic" viewBox="0 0 24 24"><path d="M3 21V9l9-5 9 5v12h-7v-5h-4v5zm8-13v2H9v2h2v2h2v-2h2v-2h-2V8z" fill="currentColor"/></symbol>
+ <symbol id="ic-learn" viewBox="0 0 24 24"><path d="M12 3 1 9l11 6 9-4.9V17h2V9zM5 13.2V17c0 1.7 3.1 3 7 3s7-1.3 7-3v-3.8l-7 3.8z" fill="currentColor"/></symbol>
+ <symbol id="ic-user" viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm-9 9c0-4 4-7 9-7s9 3 9 7z" fill="currentColor"/></symbol>
+</svg>
+<header class="topbar">
+  <a class="logo" href="#home" aria-label="Gamified Edu home"><span class="mark">GE</span><span class="word">Gamified<b>Edu</b></span></a>
+  <nav class="mainnav" aria-label="Main">
+    <a href="#home" data-nav="home">Home</a><a href="#explore" data-nav="explore">Explore</a><a href="#learning" data-nav="learning">My Learning</a>
+    <a href="#library" data-nav="library">My Library</a><a href="#clinic" data-nav="clinic">Jo's Clinic</a><a href="#profile" data-nav="profile">Profile</a>
+  </nav>
+  <div class="hud">
+    <span class="hudpill sp" title="Sparks: clinic currency"><svg class="i"><use href="#ic-spark"/></svg><b id="hudSparks">0</b></span>
+    <span class="hudpill xp" title="XP: learning progress"><svg class="i"><use href="#ic-xp"/></svg><b id="hudXp">0</b><small id="hudLvl">Lv 1</small></span>
+    <a class="hudjo" id="hudJo" href="#profile" aria-label="Jo's profile"></a>
+  </div>
+</header>
+<main id="app" tabindex="-1"></main>
+<footer class="foot wrap"><p><b>Gamified Edu</b> · interactive demo by MotionPlus Physio and Inclusive.Si. Rewards and clinic progress are simulated demo data stored only in this browser. Game achievements are not professional qualifications.</p><p>© 2026 MotionPlus Physio Pvt. Ltd. · <a href="https://josesyson-physio.github.io/anatomy_run/" target="_blank" rel="noopener noreferrer">Anatomy Run ↗</a></p></footer>
+<nav class="tabbar" aria-label="Main">
+  <a href="#home" data-nav="home"><svg class="i"><use href="#ic-home"/></svg>Home</a>
+  <a href="#explore" data-nav="explore"><svg class="i"><use href="#ic-explore"/></svg>Explore</a>
+  <a href="#library" data-nav="library"><svg class="i"><use href="#ic-play"/></svg>Play</a>
+  <a href="#clinic" data-nav="clinic"><svg class="i"><use href="#ic-clinic"/></svg>Clinic</a>
+  <a href="#profile" data-nav="profile"><svg class="i"><use href="#ic-user"/></svg>Profile</a>
+</nav>
+<button class="walkbtn" id="walkBtn" type="button" aria-expanded="false" aria-controls="walk">Demo walkthrough</button>
+<aside class="walk" id="walk" hidden aria-live="polite"></aside>
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="js/data.js" defer></script>
+<script src="content/assessment-lab.js" defer></script>
+<script src="js/state.js" defer></script>
+<script src="js/art.js" defer></script>
+<script src="js/views.js" defer></script>
+<script src="js/lab.js" defer></script>
+<script src="js/app.js" defer></script>
+</body>
+</html>
