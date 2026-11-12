@@ -11,10 +11,10 @@ GE.WORLD_GAMES = {
     advanced:['Thrust Tuner: design a rocket with the real rocket equation','Countdown Crew: make go / no-go calls from live launch data','Orbit Desk: match weather, crop and village-internet satellites to their orbits'],
     learn:['13 rocket parts and what each one does','The order of a real flight, and common rocket myths','Why staging works: the rocket equation','Thrust against weight at liftoff','Reading data to make a safe launch call','Which orbit suits which satellite job'], badge:'liftoff'},
   'ai-remote':{id:'village', name:'Village Lab', url:'village/', key:'village-lab', subject:'Junior scientist \u00b7 Design thinking', unitName:'project',
-    desc:'Listen to a villager, define the real problem, build a fix from sensors and AI, field-test it and pitch it. Then train an AI the fair way in the Data Detective lab.',
-    units:{farm:'Thirsty Fields', ajji:'Pill Panic', leaf:'Leaf Spot Mystery', jumbo:'Night Jumbo Alert', school:'Teacher-less Tuesday', well:'Well, Well, Well', leafai:'Data Detective: Leaf Doctor', jumboai:'Data Detective: Jumbo Watch', voiceai:'Data Detective: Voice Helper'},
-    advanced:['Data Detective: choose the examples an AI learns from','Find blind spots and bias, then collect better data','Decide what the AI does when it is unsure, and tell people honestly'],
-    learn:['Listening before building (empathy)','Defining a sharp, real problem','Sense, think, tell, power, connect','Using AI only where it adds value','Designing for no internet, power cuts and tight budgets','Fair training data, bias and blind spots','Being honest about what an AI gets wrong'], badge:'villageHero'}
+    desc:'Listen to a villager, define the real problem, build a fix from sensors and AI, field-test it and pitch it. Follow story trails on safety, farming and small business, and train an AI the fair way in the Data Detective lab.',
+    units:{farm:'Thirsty Fields', ajji:'Pill Panic', leaf:'Leaf Spot Mystery', jumbo:'Night Jumbo Alert', school:'Teacher-less Tuesday', well:'Well, Well, Well', roadst:'Story: The Blind Curve', mandist:'Story: The Long Road to Market', shopst:'Story: Meena\u2019s Shop', leafai:'Data Detective: Leaf Doctor', jumboai:'Data Detective: Jumbo Watch', voiceai:'Data Detective: Voice Helper'},
+    advanced:['Story trails: safety, agriculture and small business mysteries','Data Detective: choose the examples an AI learns from','Find blind spots, then decide what the AI does when unsure'],
+    learn:['Finding the real problem: who, what and why','Listening before building (empathy)','Defining a sharp, real problem','Sense, think, tell, power, connect','Using AI only where it adds value','Designing for no internet, power cuts and tight budgets','Fair training data, bias and blind spots','Being honest about what an AI gets wrong'], badge:'villageHero'}
 };
 
 GE.CATEGORIES = [

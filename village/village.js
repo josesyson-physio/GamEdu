@@ -7,7 +7,7 @@ if(window.top !== window.self){ document.body.textContent = 'Open Village Lab in
 const $ = s => document.querySelector(s), app = $('#app');
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const shuffle = a => { a = a.slice(); for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-const MS = window.VL_MISSIONS, LABS = window.VL_LABS, PARTS = window.VL_PARTS, COMMON = window.VL_COMMON, KEY = 'village-lab';
+const MS = window.VL_MISSIONS, LABS = window.VL_LABS, STORIES = window.VL_STORIES, PARTS = window.VL_PARTS, COMMON = window.VL_COMMON, KEY = 'village-lab';
 const SLOTS = ['sense', 'think', 'tell', 'power', 'connect'];
 const rupee = n => '₹' + n.toLocaleString('en-IN');
 const clean = s => String(s || '').replace(/[\u0000-\u001f\u007f<>]/g, '').trim().slice(0, 18);
@@ -16,7 +16,7 @@ const clean = s => String(s || '').replace(/[\u0000-\u001f\u007f<>]/g, '').trim(
 let SAVE = {v:1, done:{}, best:{}, look:0, name:''};
 try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s && typeof s === 'object'){
   SAVE.look = s.look === 1 ? 1 : 0; SAVE.name = clean(s.name);
-  for(const m of MS.concat(LABS)){ const d = Math.floor(+(s.done || {})[m.id]), b = Math.floor(+(s.best || {})[m.id]); if(d >= 1) SAVE.done[m.id] = Math.min(3, d); if(b >= 0 && b <= 100 && (s.best || {})[m.id] != null) SAVE.best[m.id] = b; } } }catch(e){}
+  for(const m of MS.concat(LABS, STORIES)){ const d = Math.floor(+(s.done || {})[m.id]), b = Math.floor(+(s.best || {})[m.id]); if(d >= 1) SAVE.done[m.id] = Math.min(3, d); if(b >= 0 && b <= 100 && (s.best || {})[m.id] != null) SAVE.best[m.id] = b; } } }catch(e){}
 const persist = () => { try{ localStorage.setItem(KEY, JSON.stringify(SAVE)); }catch(e){} };
 const solvedCount = () => MS.filter(m => SAVE.done[m.id]).length;
 const openCount = () => Math.min(MS.length, 3 + solvedCount());
@@ -113,12 +113,15 @@ function map(){
     <div class="side"><div class="panelc"><span class="kick">Your village</span><h2 style="font-size:1.1rem">Who needs you today?</h2><p class="muted">Tap someone on the map. Every problem is real: listen first, then build. Solve one to unlock the next.</p></div>
     <ul class="mlist">${MS.map((m, i) => { const op = i < openCount(), st = SAVE.done[m.id] || 0;
       return `<li><button class="mitem" type="button" data-i="${i}" ${op ? '' : 'disabled'}>${person(m.who, st ? 'happy' : 'worried')}<div><b>${esc(m.title)}</b><small>${esc(m.who.name)} · ${esc(m.who.role)}</small></div><span class="sc">${st ? `${SAVE.best[m.id]}/100<i>${'★'.repeat(st)}${'☆'.repeat(3 - st)}</i>` : op ? 'New' : '🔒'}</span></button></li>`; }).join('')}</ul>
+    <div class="panelc labhead"><span class="kick">Story trails · Find the real problem</span><h2 style="font-size:1.1rem">Three stories, three mysteries</h2><p class="muted">Walk through a story, collect clues, name the real problem, then decide how AI should help.</p></div>
+    <ul class="mlist">${STORIES.map((d, i) => { const st = SAVE.done[d.id] || 0; return `<li><button class="mitem tale" type="button" data-t="${i}"><span class="lic" aria-hidden="true">${d.icon}</span><div><b>${esc(d.title)}</b><small>${esc(d.theme)} · ${esc(d.hero)}</small></div><span class="sc">${st ? `${SAVE.best[d.id]}/100<i>${'★'.repeat(st)}${'☆'.repeat(3 - st)}</i>` : 'New'}</span></button></li>`; }).join('')}</ul>
     <div class="panelc labhead"><span class="kick">AI lab · Advanced</span><h2 style="font-size:1.1rem">Data Detective</h2><p class="muted">${lo ? 'Train an AI the fair way: choose its examples, find its blind spots, decide what happens when it is wrong.' : 'Build your first village project to open the AI lab.'}</p></div>
     <ul class="mlist">${LABS.map((d, i) => { const st = SAVE.done[d.id] || 0; return `<li><button class="mitem lab" type="button" data-l="${i}" ${lo ? '' : 'disabled'}><span class="lic" aria-hidden="true">${d.icon}</span><div><b>${esc(d.title)}</b><small>Train an AI for ${esc(d.who)}</small></div><span class="sc">${st ? `${SAVE.best[d.id]}/100<i>${'★'.repeat(st)}${'☆'.repeat(3 - st)}</i>` : lo ? 'New' : '🔒'}</span></button></li>`; }).join('')}</ul></div></section>`;
   $('#back').onclick = title;
   const go = i => { sfx('tap'); mission(i); };
   app.querySelectorAll('.pin:not(.locked)').forEach(p => { p.addEventListener('click', () => go(+p.dataset.i)); p.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(+p.dataset.i); } }); });
-  app.querySelectorAll('.mitem:not(:disabled):not(.lab)').forEach(b => b.onclick = () => go(+b.dataset.i));
+  app.querySelectorAll('.mitem.tale').forEach(b => b.onclick = () => { sfx('tap'); story(+b.dataset.t); });
+  app.querySelectorAll('.mitem:not(:disabled):not(.lab):not(.tale)').forEach(b => b.onclick = () => go(+b.dataset.i));
   app.querySelectorAll('.mitem.lab:not(:disabled)').forEach(b => b.onclick = () => { sfx('tap'); lab(+b.dataset.l); });
 }
 
@@ -342,10 +345,76 @@ function labResults(){
   window.scrollTo({top:0});
 }
 
+
+/* ================= STORY TRAILS (find the real problem, then let AI help) ================= */
+let T = null;
+const PIECES = ['who', 'what', 'why'], PLBL = {who:'WHO is hurt?', what:'WHAT goes wrong?', why:'WHY does it happen?'};
+function story(i){
+  const d = STORIES[i];
+  T = {i, d, at:-1, pick:null, clues:{}, prob:{}, fix:null, safe:null, sOrd:d.scenes.map(s => shuffle(s.o.map((o, k) => k))),
+    pOrd:Object.fromEntries(PIECES.map(p => [p, shuffle([0, 1, 2])])), fOrd:shuffle([0, 1, 2]), gOrd:shuffle([0, 1, 2])};
+  storyRender();
+}
+function storyShell(stepIx, body){
+  const d = T.d, names = ['Story', 'Clues', 'Problem', 'AI fix'], notes = PIECES.filter(p => T.clues[p]);
+  app.innerHTML = `<header class="bar"><button class="ib" id="back" type="button" aria-label="Village">←</button><div><b>${d.icon} ${esc(d.title)}</b><small>Story trail · ${esc(d.theme)}</small></div><div class="me">${kid(SAVE.look)}</div></header>
+    <nav class="steps" aria-label="Story steps">${names.map((s, k) => `<span class="${k === stepIx ? 'on' : k < stepIx ? 'done' : ''}">${k < stepIx ? '✓ ' : ''}${s}</span>`).join('')}</nav>
+    <section class="labwrap"><div class="work" id="work">${body}</div>
+    ${notes.length ? `<div class="work nb"><h3>🔎 Clue notebook · ${notes.length}/3</h3>${notes.map(p => `<div class="note"><b>${PLBL[p].split(' ')[0]}</b> ${esc(T.clues[p])}</div>`).join('')}</div>` : ''}</section>`;
+  $('#back').onclick = map; window.scrollTo({top:0});
+}
+function storyRender(){
+  const d = T.d;
+  if(T.at < 0){ storyShell(0, `<span class="kick">${esc(d.theme)} · A story trail</span><h2>${esc(d.title)}</h2><div class="scene" aria-hidden="true">${d.icon}</div><p class="tale">${esc(d.intro)}</p>
+      <p class="muted">Everyone has an opinion. Your job, ${esc(me())}, is to find the <b>real</b> problem: who is hurt, what goes wrong, and why. Only then do you get to build anything.</p>
+      <div class="row"><button class="btn main big" id="nx" type="button">Walk into the story →</button></div>`);
+    $('#nx').onclick = () => { T.at = 0; sfx('step'); storyRender(); }; return; }
+  if(T.at < d.scenes.length){ const s = d.scenes[T.at], o = T.pick != null ? s.o[T.pick] : null;
+    storyShell(1, `<span class="kick">Scene ${T.at + 1} of ${d.scenes.length}</span><div class="scene" aria-hidden="true">${s.e}</div><p class="tale">${esc(s.t)}</p>
+      ${o ? `<div class="chat"><div class="q">${esc(o.t)}</div><div class="a ${o.clue ? '' : 'meh'}">${esc(o.r)}</div></div>
+          <div class="fbn ${o.clue ? 'ok' : 'no'}">${o.clue ? `🔎 Clue found: ${esc(o.note)}` : 'That was a rumour, not a clue. Real clues come from people who were there, or from counting and measuring.'}</div>
+          <div class="row"><button class="btn main big" id="nx" type="button">${T.at + 1 < d.scenes.length ? 'Next scene →' : 'Name the real problem →'}</button></div>`
+        : `<p style="font-weight:800;margin:0">${esc(s.q)}</p><div class="qs">${T.sOrd[T.at].map(k => `<button class="qbtn" type="button" data-k="${k}">${esc(s.o[k].t)}</button>`).join('')}</div>`}`);
+    app.querySelectorAll('.qbtn').forEach(b => b.onclick = () => { T.pick = +b.dataset.k; const c = s.o[T.pick]; if(c.clue){ T.clues[c.clue] = c.note; sfx('ok'); } else sfx('warn'); storyRender(); });
+    const nx = $('#nx'); if(nx) nx.onclick = () => { T.at++; T.pick = null; sfx('step'); storyRender(); }; return; }
+  if(T.at === d.scenes.length){ const P = T.prob, ready = PIECES.every(p => P[p] != null); const piece = (p, ph) => P[p] != null ? `<b>${esc(d[p][P[p]])}</b>` : `<i>${ph}</i>`;
+    storyShell(2, `<span class="kick">The problem statement</span><h2>What is the real problem?</h2><p class="muted">A strong problem statement has three parts. Use your clue notebook. Opinions and blame are not problems.</p>
+      <div class="pstate"><small>Your problem statement</small><p>${piece('who', 'who…')} ${piece('what', 'what goes wrong…')}, because ${piece('why', 'why…')}.</p></div>
+      <div class="slots">${PIECES.map(p => `<fieldset class="slot"><legend>${PLBL[p]}</legend><div class="qs">${T.pOrd[p].map(k => `<button class="opt ${P[p] === k ? 'on' : ''}" type="button" data-p="${p}" data-k="${k}">${esc(d[p][k])}</button>`).join('')}</div></fieldset>`).join('')}</div>
+      <div class="row"><button class="btn main big" id="nx" type="button" ${ready ? '' : 'disabled'}>Lock the problem →</button></div>`);
+    app.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { T.prob[b.dataset.p] = +b.dataset.k; sfx('tap'); const y = window.scrollY; storyRender(); window.scrollTo({top:y}); });
+    $('#nx').onclick = () => { T.at++; sfx('step'); storyRender(); }; return; }
+  const ready = T.fix != null && T.safe != null, grp = (key, q, ord) => `<fieldset class="slot"><legend>${esc(q.q.toUpperCase())}</legend><div class="qs">${ord.map(k => `<button class="opt ${T[key] === k ? 'on' : ''}" type="button" data-g="${key}" data-k="${k}">${esc(q.o[k].t)}</button>`).join('')}</div></fieldset>`;
+  storyShell(3, `<span class="kick">The AI fix</span><h2>Now, and only now, build</h2><p class="muted">AI is a tool, not magic. Pick the job that attacks the cause you found, in a form these people can really use.</p>
+    <div class="slots">${grp('fix', d.fix, T.fOrd)}${grp('safe', d.safe, T.gOrd)}</div><div class="row"><button class="btn main big" id="nx" type="button" ${ready ? '' : 'disabled'}>📖 See how the story ends</button></div>`);
+  app.querySelectorAll('[data-g]').forEach(b => b.onclick = () => { T[b.dataset.g] = +b.dataset.k; sfx('tap'); const y = window.scrollY; storyRender(); window.scrollTo({top:y}); });
+  $('#nx').onclick = storyEnd;
+}
+function storyEnd(){
+  const d = T.d, nClue = PIECES.filter(p => T.clues[p]).length, nProb = PIECES.filter(p => T.prob[p] === 0).length, fx = d.fix.o[T.fix], sf = d.safe.o[T.safe];
+  const cat = {clues:nClue * 10, prob:nProb * 10, fix:fx.pts, safe:sf.pts}, S100 = cat.clues + cat.prob + cat.fix + cat.safe, st = S100 >= 85 ? 3 : S100 >= 65 ? 2 : 1, prev = SAVE.done[d.id] || 0;
+  SAVE.done[d.id] = Math.max(prev, st); SAVE.best[d.id] = Math.max(SAVE.best[d.id] || 0, S100); persist();
+  const end = d.ends[S100 >= 85 ? 2 : S100 >= 60 ? 1 : 0], tier = S100 >= 85 ? 'Problem Finder' : S100 >= 65 ? 'Good Listener' : 'First Steps';
+  storyShell(4, `<span class="kick">How the story ends</span><div class="scene" aria-hidden="true">${d.icon}</div><p class="tale end">${esc(end)}</p>
+    <div class="score"><div><div class="big" id="bigs">0<small>/100</small></div><div class="stars3" aria-label="${st} of 3 stars">${'★'.repeat(st)}<span>${'★'.repeat(3 - st)}</span></div></div>
+      <div><span class="tier">${tier}</span><div class="pstate" style="margin-top:10px"><small>The real problem</small><p><b>${esc(d.who[0])}</b> <b>${esc(d.what[0])}</b>, because <b>${esc(d.why[0])}</b>.</p></div></div></div>
+    <div class="bars"><div><span>Clues found</span><span class="t"><i data-w="${cat.clues / 30 * 100}"></i></span><span>${cat.clues}/30</span></div><div><span>Problem named</span><span class="t"><i data-w="${cat.prob / 30 * 100}"></i></span><span>${cat.prob}/30</span></div>
+      <div><span>AI that fits</span><span class="t"><i data-w="${cat.fix * 4}"></i></span><span>${cat.fix}/25</span></div><div><span>Safe and fair</span><span class="t"><i data-w="${cat.safe / 15 * 100}"></i></span><span>${cat.safe}/15</span></div></div>
+    <div class="fbk"><div class="panelc"><h3 style="font-size:.95rem">🤖 Your AI fix</h3><ul><li>${esc(fx.why)}</li><li>${esc(sf.why)}</li></ul></div>
+      <div class="panelc"><h3 style="font-size:.95rem">🔎 Your detective work</h3><ul><li>${nClue === 3 ? 'You found all three clues by listening to the right people and measuring.' : `You found ${nClue} of 3 clues. Rumours and blame are loud; clues come from people who were there and from counting.`}</li><li>${nProb === 3 ? 'Your problem statement named who, what and why exactly.' : `${nProb} of 3 parts of your problem statement matched the evidence.`}</li></ul></div></div>
+    <p class="real">🌍 <b>Real world:</b> ${esc(d.real)}</p>
+    <div class="row"><button class="btn main big" id="vb" type="button">Back to the village</button><button class="btn ghost" id="ag" type="button">Replay the story</button></div>`);
+  sfx(S100 >= 65 ? 'win' : 'step');
+  requestAnimationFrame(() => app.querySelectorAll('.bars i').forEach(i => i.style.width = i.dataset.w + '%'));
+  let n = 0; const big = $('#bigs'); const tick = () => { if(!big.isConnected) return; n = Math.min(S100, n + Math.max(1, Math.round(S100 / 40))); big.innerHTML = `${n}<small>/100</small>`; if(n < S100) requestAnimationFrame(tick); }; tick();
+  $('#vb').onclick = map; $('#ag').onclick = () => story(T.i);
+}
+
 /* test hook (only with ?test in the URL): read-only state */
 if(/[?&]test\b/.test(location.search)) window.__vlTest = () => M && {id:M.m.id, step:M.step, asked:M.asked.slice(), pick:Object.assign({}, M.pick), def:M.def, tests:M.tests,
   good:M.m.questions.map((q, k) => q.good ? k : -1).filter(k => k >= 0), sharp:M.m.define.findIndex(d => d.kind === 'sharp'), best:Object.fromEntries(SLOTS.map(s => [s, M.m.slots[s].slice().sort((a, b) => b.pts - a.pts)[0].id])),
   impactBest:M.m.impact.findIndex(x => x.pts === 6)};
 if(/[?&]test\b/.test(location.search)) window.__vlLab = () => L && {id:L.d.id, step:L.step, keys:L.cards.map(c => c.key), picked:[...L.picked], take:L.d.take, bestAlert:L.d.alert.o.findIndex(o => o.pts === 25), bestHonest:L.d.honest.o.findIndex(o => o.pts === 25), ord:L.ord};
+if(/[?&]test\b/.test(location.search)) window.__vlStory = () => T && {id:T.d.id, at:T.at, clueK:T.at >= 0 && T.at < T.d.scenes.length ? T.d.scenes[T.at].o.findIndex(o => o.clue) : null};
 title();
 })();

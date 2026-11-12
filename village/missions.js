@@ -212,3 +212,98 @@ window.VL_LABS = [
     {t:'No need: it scored 95% on my laptop', pts:0, why:'A score on your own data says little about people the AI has never heard.'}]},
   real:'Speech tools often work worst for older speakers and local accents, because those voices are rare in the recordings they learned from.'}
 ];
+
+/* Story Trails: walk through a story, collect clues, name the real problem (who + what + why), then choose how AI should help.
+   In each scene one choice gives a real clue; the others give a rumour. First option in who/what/why/fix/safe lists is the best one (they are shuffled on screen). */
+window.VL_STORIES = [
+ {id:'roadst', theme:'Safety', icon:'🚸', title:'The Blind Curve', hero:'Anjali, 11',
+  intro:'Rain is coming. Anjali waits at the edge of the highway with her little brother, school bag over her head. A truck horn screams round the bend. Last month her friend Deepa was hit right here. The whole village is angry, and everybody blames somebody different.',
+  scenes:[
+   {e:'🛣️🌧️🚛', t:'At the tea stall by the road, people are arguing. “Children today never look before they cross!” says one man. An old truck driver sits quietly in the corner, stirring his tea.', q:'Who do you talk to?', o:[
+     {t:'The quiet truck driver', clue:'why', r:'“I have driven this road for twenty years,” he says. “Coming round that bend, I cannot see the crossing until I am almost on top of it. At dusk it is worse. Nobody is careless. We just cannot see each other.”', note:'Drivers cannot see the crossing until the last second'},
+     {t:'The man blaming the children', r:'“Careless, all of them!” he says. But he has never stood at the crossing himself. It is an opinion, not a clue.'},
+     {t:'The stall owner', r:'“Bad luck, that curve,” he shrugs, and goes back to his kettle.'}]},
+   {e:'🏫🕔🎒', t:'You walk to the school. The bell rings at five. Sixty children pour out, and the only way home for half of them is across the highway.', q:'What do you look at?', o:[
+     {t:'Stand at the crossing and count for one evening', clue:'who', r:'In thirty minutes, 34 children cross, most of them under twelve, in small groups. No adult is with them. These are the people in danger.', note:'About 34 schoolchildren cross alone every evening'},
+     {t:'The school notice board', r:'A poster says “Road Safety Week”. It is from two years ago.'},
+     {t:'Ask the head teacher for a new rule', r:'“We already tell them to be careful,” she says. Rules have not stopped the trucks.'}]},
+   {e:'🌆🚛💨', t:'The sun is going down. You sit on the wall above the bend with a notebook, the way a scientist would.', q:'What do you measure?', o:[
+     {t:'How fast vehicles come round the bend, and when', clue:'what', r:'Between five and six, most trucks take the bend fast, exactly when the children cross. Twice, a truck brakes hard with a child already on the road.', note:'Fast traffic and crossing children meet at the same time, 5 to 6 pm'},
+     {t:'How many potholes there are', r:'There are eleven. They are a nuisance, but nobody was hit because of a pothole.'},
+     {t:'What colour the trucks are', r:'Mostly orange. That does not help anyone.'}]}],
+  who:['Schoolchildren who cross the highway alone each evening', 'Truck drivers', 'The whole village'],
+  what:['are nearly hit at the crossing between 5 and 6 pm', 'do not follow rules', 'have bad luck on that road'],
+  why:['drivers coming round the bend cannot see them in time', 'children are careless', 'the road has potholes'],
+  fix:{q:'How should AI help?', o:[
+    {t:'A solar camera before the bend that spots people near the crossing and flashes a big warning light to drivers', pts:25, why:'It fixes the real cause: drivers get the warning before they can see the children. It works offline on solar power.'},
+    {t:'A chatbot that teaches children road rules', pts:8, why:'The children already know the rules. The drivers still cannot see them.'},
+    {t:'An app that lets parents track their children on a map', pts:5, why:'Knowing where a child is does not stop the truck, and most parents have basic phones.'}]},
+  safe:{q:'What makes it safe and fair?', o:[
+    {t:'It only counts shapes and never saves faces, and a teacher still walks the children across', pts:15, why:'Privacy is protected, and a person stays in charge when the AI misses.'},
+    {t:'Save video of everyone so the police can check later', pts:4, why:'Filming children all day creates a new risk to solve an old one.'},
+    {t:'Once it is installed, nobody needs to watch the crossing', pts:0, why:'Every AI misses sometimes. Here a miss can cost a life.'}]},
+  ends:['The warning light went up, but the village never agreed what it was for. Within a month people stopped noticing it. Anjali still runs across with her bag over her head.',
+   'The light helps on most evenings. Some drivers slow down. But the village is still arguing about what the real problem is, so the fix is only half trusted.',
+   'Three weeks later a truck comes round the bend in the rain. The amber light is already flashing. The driver slows to a crawl, and Anjali, her brother and a teacher cross in front of him. He lifts one hand from the wheel and waves.'],
+  real:'Blind-spot warning systems that detect people and alert drivers are used at dangerous crossings in many countries. They work best alongside people, signs and speed breakers.'},
+ {id:'mandist', theme:'Agriculture', icon:'🍅', title:'The Long Road to Market', hero:'Raju, 38',
+  intro:'Three in the morning. Raju loads forty crates of tomatoes onto a hired tempo and drives three hours to the big market. By nine the price has crashed. He sells for less than the tempo cost him. On the way home he passes his neighbours, driving to the same market with the same tomatoes.',
+  scenes:[
+   {e:'🚚🍅🌄', t:'Back in the village, Raju’s friends have ideas. “Grow something else!” “The traders are all cheats!” His wife Savitri is quietly looking through old receipts.', q:'Who do you sit with?', o:[
+     {t:'Savitri and her box of receipts', clue:'what', r:'She spreads them out. “Look. Some days ₹4 a kilo, some days ₹22. It is not always bad. We just never know which day it will be until we are already there.”', note:'Prices swing from ₹4 to ₹22, and they find out only on arrival'},
+     {t:'The friend who blames traders', r:'“All cheats!” he says. He has no receipts and no numbers. It is anger, not evidence.'},
+     {t:'The friend who says grow something else', r:'“Try chillies.” Maybe. But chilli growers have the same problem.'}]},
+   {e:'📻🏪📉', t:'You visit the market. Inside the office, a clerk writes today’s prices on a board. Outside, forty tempos from forty villages are already unloading.', q:'What do you find out?', o:[
+     {t:'Ask where else tomatoes are sold, and at what price today', clue:'why', r:'“Two smaller markets, each an hour away,” says the clerk. “Today they paid ₹9 more than here. But farmers cannot know that before they leave home. Everyone comes here because everyone comes here.”', note:'Other markets pay more, but farmers cannot compare before leaving home'},
+     {t:'Count how many crates there are', r:'A lot. That tells you the market is full, but not why.'},
+     {t:'Ask for a better price for Raju', r:'The trader laughs. “Supply is supply.”'}]},
+   {e:'👨‍🌾👩‍🌾📱', t:'Evening. Twelve farmers sit under the banyan tree. You ask to see their phones.', q:'What do you check?', o:[
+     {t:'What kind of phones they have and how they get news', clue:'who', r:'Nine of twelve have basic phones. All grow tomatoes on small plots and hire the same two tempos. They hear prices by word of mouth, a day late.', note:'Small tomato farmers with basic phones, hearing prices a day late'},
+     {t:'Whether they like tomatoes', r:'They do. This does not help.'},
+     {t:'Who has the biggest farm', r:'One large farmer has his own truck and a smartphone. He is not the one losing money.'}]}],
+  who:['Small tomato farmers with basic phones', 'Traders at the big market', 'All farmers in India'],
+  what:['sell at a loss on days when the big market is flooded', 'grow the wrong crop', 'are cheated by everyone'],
+  why:['they cannot compare prices at different markets before the long trip', 'they do not work hard enough', 'tomatoes are a bad crop'],
+  fix:{q:'How should AI help?', o:[
+    {t:'Each evening, a Kannada voice call with tomorrow’s likely price at three markets, predicted from past prices and arrivals', pts:25, why:'It gives the missing information, before the trip, on the phone they already own.'},
+    {t:'A robot that picks tomatoes faster', pts:4, why:'Picking was never the problem. More tomatoes on a bad day means a bigger loss.'},
+    {t:'A smartphone app with price charts in English', pts:9, why:'Right idea, wrong form: most have basic phones and prefer to listen in Kannada.'}]},
+  safe:{q:'What makes it honest and fair?', o:[
+    {t:'It says “this is a forecast, and this is how sure I am”, and each farmer decides for himself', pts:15, why:'A forecast can be wrong. People who know that make better choices and keep trusting it.'},
+    {t:'It tells every farmer to go to the single best market', pts:5, why:'Then everyone floods that market instead, and the price crashes there.'},
+    {t:'It promises the price', pts:0, why:'No one can promise tomorrow’s price. The first wrong promise ends all trust.'}]},
+  ends:['A machine arrived, but it answered a question nobody had asked. Raju still leaves at three in the morning and hopes.',
+   'Some evenings the price call helps. Some mornings half the village still turns up at the same market. Better, but the real problem was only half named.',
+   'Nine at night. Raju’s old phone rings. “Tomorrow: big market low, quite sure. Hosadurga market higher, fairly sure.” He and two neighbours share one tempo to Hosadurga. They are home by noon, and Savitri adds a new receipt to the box: ₹19 a kilo.'],
+  real:'Price information and forecasts sent by voice and SMS are used by farmer services in India and Africa. Studies find they help most when farmers can actually reach more than one market.'},
+ {id:'shopst', theme:'Small business', icon:'🧵', title:'Meena’s Shop', hero:'Meena, 29',
+  intro:'Meena runs the only shop for six kilometres: soap, rice, school notebooks, phone recharges. She works from six to nine. Yet the week before the festival she ran out of oil and jaggery by Tuesday, while forty packets of biscuits nobody wanted went stale. “I am always busy,” she says, “so why am I always short of money?”',
+  scenes:[
+   {e:'🏪📒🪔', t:'People have advice. Her uncle says, “Raise your prices.” A salesman says, “Buy my biscuits in bulk, cheaper!” On the counter sits a fat, worn notebook.', q:'What do you look at?', o:[
+     {t:'The notebook', clue:'why', r:'Every sale on credit is here, in order, for three years. But sales for cash are not written anywhere. To know what sold last festival, Meena would have to remember. “It is all in my head,” she says, “and my head is full.”', note:'Sales live only in her memory, so she cannot see what sells when'},
+     {t:'The salesman’s offer', r:'Cheaper per packet, yes. But she already has forty packets going stale.'},
+     {t:'The uncle’s advice', r:'Higher prices would send her customers six kilometres down the road.'}]},
+   {e:'🧺🫙📦', t:'You spend a Saturday behind the counter with her, making a mark on paper for every single thing sold.', q:'What do you count?', o:[
+     {t:'What sells out, and what sits', clue:'what', r:'By evening: oil gone at noon, jaggery gone at two, eleven people sent away. Biscuits sold: one. Her money is sitting on the shelf as things nobody buys, while what people want runs out.', note:'What sells runs out; money is stuck in stock that does not sell'},
+     {t:'How many people say hello', r:'Everybody. She is well loved. That is not the problem.'},
+     {t:'How tidy the shelves are', r:'Very tidy. Tidy shelves of the wrong things.'}]},
+   {e:'👩‍👧📱🕘', t:'Nine at night. Meena pulls the shutter down. Her daughter is asleep on a rice sack. You ask how she decides what to order.', q:'What do you ask about?', o:[
+     {t:'Her day: when she orders, and what she uses to do it', clue:'who', r:'“The supplier’s van comes on Monday. I order from memory in five minutes with a child on my hip. I have a smartphone, but I only use it for recharges and voice messages. I have no time to type.”', note:'A one-woman shop owner, no time to type, comfortable with voice messages'},
+     {t:'Whether she wants a bigger shop', r:'“One day,” she smiles. A bigger shop with the same problem would lose more money.'},
+     {t:'Why she does not hire an accountant', r:'She laughs. “With what money?”'}]}],
+  who:['Meena, who runs a village shop alone', 'Her customers', 'Every shop in the district'],
+  what:['runs out of what sells while her money is stuck in what does not', 'charges too little', 'is not working hard enough'],
+  why:['her sales are kept only in memory, so she cannot see what sells when', 'her customers are unfair', 'the shop is too small'],
+  fix:{q:'How should AI help?', o:[
+    {t:'She says each sale aloud in Kannada; the AI keeps the book and, every Sunday, suggests what to order before the van comes', pts:25, why:'It fits her life: voice, no typing. It turns her memory into a pattern she can see, exactly when she orders.'},
+    {t:'A website so people can order from her online', pts:6, why:'Her customers walk in. More orders do not help when the oil has already run out.'},
+    {t:'An AI that sets prices automatically', pts:5, why:'Price was never the problem. Stock was.'}]},
+  safe:{q:'What keeps Meena in charge?', o:[
+    {t:'Her sales stay on her own phone, and the AI only suggests: she checks and changes the order list', pts:15, why:'Her business data is hers, and she knows things the AI does not, like a wedding next week.'},
+    {t:'The AI sends the order to the supplier by itself', pts:5, why:'Fast, until it orders forty packets of biscuits because of one odd week.'},
+    {t:'Share her sales data with the supplier so they can decide', pts:0, why:'The supplier wants to sell more, not what is best for Meena.'}]},
+  ends:['A clever tool arrived that solved somebody else’s problem. The biscuits are still on the shelf. Meena is still tired.',
+   'The new tool helps a little. Some weeks the oil lasts until Friday. But the real problem was only half understood, so the fix only half fits.',
+   'Sunday evening. Meena’s phone speaks: “Last Deepavali week you sold nineteen litres of oil. You have six. Biscuits: order none.” She changes one line, because there is a wedding on Thursday, and sends it. That festival week, nobody is sent away, and on Saturday she closes the shutter at eight.'],
+  real:'Voice-first bookkeeping in local languages helps very small shops track sales. The owner’s own knowledge of local events still beats any forecast, so good tools suggest and let her decide.'}
+];
