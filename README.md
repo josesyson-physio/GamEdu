@@ -24,8 +24,8 @@ and **AI in Remote Areas** (Village Lab).
 |---|---|
 | Home | Isometric hero world, featured, continue playing (real Anatomy Run progress), categories, journey |
 | Explore | Physiotherapy, Basics of Rocket Science and AI in Remote Areas, all live |
-| Rocket Science | Liftoff Lab, progress per mission, coming-next game ideas |
-| AI in Remote Areas | Village Lab, best idea score per project, coming-next game ideas |
+| Rocket Science | Liftoff Lab: 4 flight-school missions plus Mission Control (Thrust Tuner, Countdown Crew, Orbit Desk), progress per mission |
+| AI in Remote Areas | Village Lab: 6 village projects plus the Data Detective AI lab (3 labs) and a shareable project card, best score per unit |
 | Physiotherapy | Anatomy Run, the reward loop, Jo's Clinic, skill map, Smart Clinic goal |
 | Anatomy Run page | Launches the real game in its own tab; rewards explained; real progress shown |
 | Root Cause page | Launches Body City; rewards, treatment skills and how a case works |

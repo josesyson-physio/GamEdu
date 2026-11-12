@@ -7,7 +7,7 @@ if(window.top !== window.self){ document.body.textContent = 'Open Village Lab in
 const $ = s => document.querySelector(s), app = $('#app');
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const shuffle = a => { a = a.slice(); for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-const MS = window.VL_MISSIONS, PARTS = window.VL_PARTS, COMMON = window.VL_COMMON, KEY = 'village-lab';
+const MS = window.VL_MISSIONS, LABS = window.VL_LABS, PARTS = window.VL_PARTS, COMMON = window.VL_COMMON, KEY = 'village-lab';
 const SLOTS = ['sense', 'think', 'tell', 'power', 'connect'];
 const rupee = n => '₹' + n.toLocaleString('en-IN');
 const clean = s => String(s || '').replace(/[\u0000-\u001f\u007f<>]/g, '').trim().slice(0, 18);
@@ -16,9 +16,11 @@ const clean = s => String(s || '').replace(/[\u0000-\u001f\u007f<>]/g, '').trim(
 let SAVE = {v:1, done:{}, best:{}, look:0, name:''};
 try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s && typeof s === 'object'){
   SAVE.look = s.look === 1 ? 1 : 0; SAVE.name = clean(s.name);
-  for(const m of MS){ const d = Math.floor(+(s.done || {})[m.id]), b = Math.floor(+(s.best || {})[m.id]); if(d >= 1) SAVE.done[m.id] = Math.min(3, d); if(b >= 0 && b <= 100 && (s.best || {})[m.id] != null) SAVE.best[m.id] = b; } } }catch(e){}
+  for(const m of MS.concat(LABS)){ const d = Math.floor(+(s.done || {})[m.id]), b = Math.floor(+(s.best || {})[m.id]); if(d >= 1) SAVE.done[m.id] = Math.min(3, d); if(b >= 0 && b <= 100 && (s.best || {})[m.id] != null) SAVE.best[m.id] = b; } } }catch(e){}
 const persist = () => { try{ localStorage.setItem(KEY, JSON.stringify(SAVE)); }catch(e){} };
-const openCount = () => Math.min(MS.length, 3 + Object.keys(SAVE.done).length);
+const solvedCount = () => MS.filter(m => SAVE.done[m.id]).length;
+const openCount = () => Math.min(MS.length, 3 + solvedCount());
+const labsOpen = () => solvedCount() >= 1;
 const me = () => SAVE.name || 'Junior Scientist';
 
 /* ---------- sound ---------- */
@@ -71,7 +73,7 @@ const ICON = {farm:'🌾', ajji:'💊', leaf:'🍅', jumbo:'🐘', school:'📚'
 function title(){
   app.innerHTML = `<section class="title"><div class="tcard"><div><span class="kick">Gamified Edu · AI in Remote Areas</span><h1><span>VILLAGE</span><span>LAB</span></h1><p class="tag">Junior Scientist</p>
     <p class="pitch">Real people. Real problems. You listen, you think, you build something that actually works in a village with patchy power, no internet and a tight budget. Then the village tells you if it helped.</p>
-    <div class="row"><button class="btn main big" id="go" type="button">${Object.keys(SAVE.done).length ? 'Back to the village' : 'Start your first project'}</button><a class="btn ghost" href="../#cat-ai-remote">Back to Gamified Edu</a></div></div>
+    <div class="row"><button class="btn main big" id="go" type="button">${solvedCount() ? 'Back to the village' : 'Start your first project'}</button><a class="btn ghost" href="../#cat-ai-remote">Back to Gamified Edu</a></div></div>
     <div class="who"><div id="avbig">${kid(SAVE.look, 'av')}</div><div class="looks" role="radiogroup" aria-label="Choose your scientist">${[0, 1].map(l => `<button type="button" role="radio" aria-checked="${SAVE.look === l}" class="${SAVE.look === l ? 'on' : ''}" data-l="${l}" aria-label="Look ${l + 1}">${kid(l)}</button>`).join('')}</div>
     <div class="field"><label for="nm">Your scientist name</label><input id="nm" maxlength="18" autocomplete="off" placeholder="Junior Scientist" value="${esc(SAVE.name)}"></div></div></div></section>`;
   app.querySelectorAll('.looks button').forEach(b => b.onclick = () => { SAVE.look = +b.dataset.l; persist(); sfx('tap'); title(); });
@@ -105,16 +107,19 @@ function villageSVG(){
     ${pins}</svg>`;
 }
 function map(){
-  const solved = Object.keys(SAVE.done).length, total = Object.values(SAVE.best).reduce((a, b) => a + b, 0);
+  const solved = solvedCount(), total = MS.reduce((a, m) => a + (SAVE.best[m.id] || 0), 0), lo = labsOpen();
   app.innerHTML = `<header class="bar"><button class="ib" id="back" type="button" aria-label="Title">←</button><div class="me">${kid(SAVE.look)}<div><b>${esc(me())}</b><small>${solved}/6 ideas built · ${total} idea points</small></div></div><a class="ib" href="../#cat-ai-remote">GE</a></header>
     <section class="mapwrap"><div class="mapcard">${villageSVG()}</div>
     <div class="side"><div class="panelc"><span class="kick">Your village</span><h2 style="font-size:1.1rem">Who needs you today?</h2><p class="muted">Tap someone on the map. Every problem is real: listen first, then build. Solve one to unlock the next.</p></div>
     <ul class="mlist">${MS.map((m, i) => { const op = i < openCount(), st = SAVE.done[m.id] || 0;
-      return `<li><button class="mitem" type="button" data-i="${i}" ${op ? '' : 'disabled'}>${person(m.who, st ? 'happy' : 'worried')}<div><b>${esc(m.title)}</b><small>${esc(m.who.name)} · ${esc(m.who.role)}</small></div><span class="sc">${st ? `${SAVE.best[m.id]}/100<i>${'★'.repeat(st)}${'☆'.repeat(3 - st)}</i>` : op ? 'New' : '🔒'}</span></button></li>`; }).join('')}</ul></div></section>`;
+      return `<li><button class="mitem" type="button" data-i="${i}" ${op ? '' : 'disabled'}>${person(m.who, st ? 'happy' : 'worried')}<div><b>${esc(m.title)}</b><small>${esc(m.who.name)} · ${esc(m.who.role)}</small></div><span class="sc">${st ? `${SAVE.best[m.id]}/100<i>${'★'.repeat(st)}${'☆'.repeat(3 - st)}</i>` : op ? 'New' : '🔒'}</span></button></li>`; }).join('')}</ul>
+    <div class="panelc labhead"><span class="kick">AI lab · Advanced</span><h2 style="font-size:1.1rem">Data Detective</h2><p class="muted">${lo ? 'Train an AI the fair way: choose its examples, find its blind spots, decide what happens when it is wrong.' : 'Build your first village project to open the AI lab.'}</p></div>
+    <ul class="mlist">${LABS.map((d, i) => { const st = SAVE.done[d.id] || 0; return `<li><button class="mitem lab" type="button" data-l="${i}" ${lo ? '' : 'disabled'}><span class="lic" aria-hidden="true">${d.icon}</span><div><b>${esc(d.title)}</b><small>Train an AI for ${esc(d.who)}</small></div><span class="sc">${st ? `${SAVE.best[d.id]}/100<i>${'★'.repeat(st)}${'☆'.repeat(3 - st)}</i>` : lo ? 'New' : '🔒'}</span></button></li>`; }).join('')}</ul></div></section>`;
   $('#back').onclick = title;
   const go = i => { sfx('tap'); mission(i); };
   app.querySelectorAll('.pin:not(.locked)').forEach(p => { p.addEventListener('click', () => go(+p.dataset.i)); p.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(+p.dataset.i); } }); });
-  app.querySelectorAll('.mitem:not(:disabled)').forEach(b => b.onclick = () => go(+b.dataset.i));
+  app.querySelectorAll('.mitem:not(:disabled):not(.lab)').forEach(b => b.onclick = () => go(+b.dataset.i));
+  app.querySelectorAll('.mitem.lab:not(:disabled)').forEach(b => b.onclick = () => { sfx('tap'); lab(+b.dataset.l); });
 }
 
 /* ================= MISSION ================= */
@@ -243,13 +248,97 @@ function results(){
     <div class="fbk"><div class="panelc"><h3 style="font-size:.95rem">💪 What went well</h3><ul>${(wins.length ? wins.map(k => good[k]) : ['You finished a full design cycle: listen, define, build, test, pitch.']).map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
       <div class="panelc"><h3 style="font-size:.95rem">🔧 Level up next time</h3><ul>${(fixes.length ? fixes.map(k => fix[k]) : ['Try another village problem. Each one has different limits.']).map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div>
     <p class="real">🌍 <b>Real world:</b> ${esc(m.real)}</p>
-    <div class="row"><button class="btn main big" id="vb" type="button">Back to the village</button><button class="btn ghost" id="ag" type="button">Rebuild this project</button></div>`;
+    <div class="pcard"><span class="kick">Project card</span><h3>${esc(M.pitch.name || 'My invention')}</h3><p class="by">by ${esc(me())} · for ${esc(m.who.name)}, ${esc(m.who.role)}</p>
+      <p><b>Problem:</b> ${esc(m.define[M.def].t)}</p>
+      <ul>${SLOTS.map(s => `<li><span>${PARTS[s].label}</span>${esc(PARTS[s].items[M.pick[s]].name)}</li>`).join('')}</ul>
+      <p class="pfoot"><span>Cost ${rupee(cost())} of ${rupee(m.budget)}</span><span>Idea score ${T}/100 · ${tier}</span></p></div>
+    <div class="row"><button class="btn main big" id="vb" type="button">Back to the village</button><button class="btn ghost" id="cp" type="button">Copy project card</button><button class="btn ghost" id="ag" type="button">Rebuild this project</button></div>`;
+  $('#cp').onclick = () => { const txt = `${M.pitch.name || 'My invention'} — by ${me()}\nFor: ${m.who.name}, ${m.who.role}\nProblem: ${m.define[M.def].t}\n${SLOTS.map(s => PARTS[s].label + ': ' + PARTS[s].items[M.pick[s]].name).join('\n')}\nCost: ${rupee(cost())} of ${rupee(m.budget)}\nIdea score: ${T}/100 (${tier}) · Village Lab, Gamified Edu`;
+    const done = () => toast('Project card copied. Paste it to your teacher or family.'), fail = () => toast('Could not copy here. Take a screenshot of the card instead.');
+    try{ navigator.clipboard.writeText(txt).then(done, fail); }catch(e){ fail(); } };
   app.querySelector('.person .face').outerHTML = person(m.who, md, 'face');
   sfx(T >= 70 ? 'win' : 'step');
   requestAnimationFrame(() => app.querySelectorAll('.bars i').forEach(i => i.style.width = i.dataset.w + '%'));
   let n = 0; const big = $('#bigs'); const tick = () => { if(!big.isConnected) return; n = Math.min(T, n + Math.max(1, Math.round(T / 40))); big.innerHTML = `${n}<small>/100</small>`; if(n < T) requestAnimationFrame(tick); }; tick();
-  $('#vb').onclick = () => { if(!prevSt) toast(Object.keys(SAVE.done).length + 3 <= MS.length ? 'A new villager needs your help!' : 'Idea saved. Sparks are waiting in Gamified Edu.'); map(); };
+  $('#vb').onclick = () => { if(!prevSt) toast(solvedCount() === 1 ? 'The AI lab is open: try Data Detective!' : solvedCount() + 3 <= MS.length ? 'A new villager needs your help!' : 'Idea saved. Sparks are waiting in Gamified Edu.'); map(); };
   $('#ag').onclick = () => mission(M.i);
+  window.scrollTo({top:0});
+}
+
+
+/* ================= DATA DETECTIVE (advanced labs) ================= */
+let L = null;
+const cellKey = (a, b) => a + '|' + b;
+function lab(i){
+  const d = LABS[i], cards = [];
+  for(const a of d.A) for(const b of d.B) for(let n = 0; n < d.pool[cellKey(a.k, b.k)]; n++) cards.push({a, b, key:cellKey(a.k, b.k)});
+  L = {i, d, cards:shuffle(cards), picked:new Set(), step:0, trains:0, alert:null, honest:null, ord:[shuffle([0, 1, 2]), shuffle([0, 1, 2])]};
+  labRender();
+}
+function labCover(){ const c = {}; for(const a of L.d.A) for(const b of L.d.B) c[cellKey(a.k, b.k)] = 0; L.picked.forEach(i => c[L.cards[i].key]++); return c; }
+function labData(){ const c = Object.values(labCover()), n = c.length; return {have:c.filter(x => x >= 1).length, strong:c.filter(x => x >= 2).length, n, acc:Math.round(c.reduce((s, x) => s + (x >= 2 ? 2 : x), 0) / (n * 2) * 100)}; }
+const LSTEPS = ['Collect', 'Train & test', 'Decide', 'Be honest'];
+function labRender(){
+  const d = L.d;
+  app.innerHTML = `<header class="bar"><button class="ib" id="back" type="button" aria-label="Village">←</button><div><b>${d.icon} Data Detective: ${esc(d.title)}</b><small>AI lab · for ${esc(d.who)}</small></div><div class="me">${kid(SAVE.look)}</div></header>
+    <nav class="steps" aria-label="Lab steps">${LSTEPS.map((s, k) => `<span class="${k === L.step ? 'on' : k < L.step ? 'done' : ''}">${k < L.step ? '✓ ' : ''}${s}</span>`).join('')}</nav>
+    <section class="labwrap"><div class="work" id="work"></div></section>`;
+  $('#back').onclick = map;
+  [labCollect, labTest, labDecide, labHonest][L.step]();
+  window.scrollTo({top:0});
+}
+function labCollect(){
+  const d = L.d, left = d.take - L.picked.size;
+  $('#work').innerHTML = `<span class="kick">Step 1 · Collect the examples</span><h2>An AI only knows what you show it</h2>
+    <p class="muted">${esc(d.need)} You can afford to label <b>${d.take}</b> examples. Choose which ones it learns from.</p>
+    <div class="budget"><b id="lc">${L.picked.size}/${d.take} chosen</b><span class="muted">Tap a card to add or remove it.</span></div>
+    <div class="cards">${L.cards.map((c, i) => `<button class="dcard ${L.picked.has(i) ? 'on' : ''}" type="button" data-i="${i}" aria-pressed="${L.picked.has(i)}" style="--c:${c.b.c}"><span class="e" aria-hidden="true">${c.a.e}</span><b>${esc(c.a.n)}</b><small>${esc(c.b.n)}</small></button>`).join('')}</div>
+    <div class="row"><button class="btn main big" id="nx" type="button" ${left ? 'disabled' : ''}>🧠 Train the AI</button><span class="muted" id="ll" style="align-self:center">${left ? `${left} more to choose` : ''}</span></div>`;
+  app.querySelectorAll('.dcard').forEach(b => b.onclick = () => { const i = +b.dataset.i;
+    if(L.picked.has(i)) L.picked.delete(i); else if(L.picked.size < d.take) L.picked.add(i); else { sfx('no'); return toast(`Only ${d.take} examples. Remove one first.`); }
+    sfx('tap'); const on = L.picked.has(i), n = d.take - L.picked.size; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on);
+    $('#lc').textContent = `${L.picked.size}/${d.take} chosen`; $('#ll').textContent = n ? `${n} more to choose` : ''; $('#nx').disabled = !!n; });
+  $('#nx').onclick = () => { L.trains++; L.step = 1; sfx('step'); labRender(); };
+}
+function labTest(){
+  const d = L.d, c = labCover(), D = labData(); if(L.firstAcc == null) L.firstAcc = D.acc;
+  const miss = []; for(const a of d.A) for(const b of d.B) if(!c[cellKey(a.k, b.k)]) miss.push(`${a.n.toLowerCase()} in ${b.n.toLowerCase()}`);
+  $('#work').innerHTML = `<span class="kick">Step 2 · Test on new cases${L.trains > 1 ? ` (model ${L.trains})` : ''}</span><h2>It scored <span class="${D.acc >= 85 ? 'gd' : D.acc >= 60 ? 'md' : 'bd'}">${D.acc}%</span> on cases it had never seen</h2>
+    <p class="muted">Each box is one kind of real-life case. Green: it learned it well. Amber: it saw only one example, so it is shaky. Red: it never saw one, so it is guessing.</p>
+    <div class="heat" style="--n:${d.B.length}"><span></span>${d.B.map(b => `<b>${esc(b.n)}</b>`).join('')}${d.A.map(a => `<b>${a.e} ${esc(a.n)}</b>${d.B.map(b => { const n = c[cellKey(a.k, b.k)]; return `<i class="${n >= 2 ? 'ok' : n ? 'warn' : 'no'}">${n >= 2 ? '✓ learned' : n ? '! shaky' : '✕ guessing'}<small>${n} example${n === 1 ? '' : 's'}</small></i>`; }).join('')}`).join('')}</div>
+    ${miss.length ? `<div class="note"><b>Blind spots:</b> it has never seen a ${esc(miss.join(', a '))}. ${esc(d.trap)}</div>` : D.acc < 100 ? `<div class="note">No blind spots, but some kinds have only one example. Two of each kind makes it steady.</div>` : `<div class="note">Balanced data: every kind of case, more than once. That is what fair training looks like.</div>`}
+    <div class="row">${D.acc < 100 ? `<button class="btn main big" id="fix" type="button">📷 Collect better data</button><button class="btn ghost" id="nx" type="button">Use this model</button>` : `<button class="btn main big" id="nx" type="button">Use this model →</button>`}</div>`;
+  const f = $('#fix'); if(f) f.onclick = () => { L.step = 0; labRender(); };
+  $('#nx').onclick = () => { L.step = 2; sfx('step'); labRender(); };
+}
+function labChoice(key, k, kick, nextStep){
+  const q = L.d[key];
+  $('#work').innerHTML = `<span class="kick">${kick}</span><h2>${esc(q.q)}</h2><p class="muted">Every AI is sometimes wrong. A good scientist decides what happens when it is.</p>
+    <div class="qs">${L.ord[k].map(i => `<button class="opt ${L[key] === i ? 'on' : ''}" type="button" data-i="${i}">${esc(q.o[i].t)}</button>`).join('')}</div>
+    <div class="row"><button class="btn main big" id="nx" type="button" ${L[key] == null ? 'disabled' : ''}>${nextStep ? 'Next →' : '📊 See my AI score'}</button></div>`;
+  app.querySelectorAll('.opt').forEach(b => b.onclick = () => { L[key] = +b.dataset.i; sfx('tap'); labChoice(key, k, kick, nextStep); });
+  $('#nx').onclick = () => { if(nextStep){ L.step = nextStep; sfx('step'); labRender(); } else labResults(); };
+}
+const labDecide = () => labChoice('alert', 0, 'Step 3 · Decide', 3);
+const labHonest = () => labChoice('honest', 1, 'Step 4 · Be honest', 0);
+function labResults(){
+  const d = L.d, D = labData(), al = d.alert.o[L.alert], ho = d.honest.o[L.honest];
+  const cat = {data:Math.round(D.have / D.n * 30 + D.strong / D.n * 20), alert:al.pts, honest:ho.pts}, improved = L.trains > 1 && D.acc > L.firstAcc;
+  const T = Math.min(100, cat.data + cat.alert + cat.honest), st = T >= 85 ? 3 : T >= 65 ? 2 : 1, prev = SAVE.done[d.id] || 0;
+  SAVE.done[d.id] = Math.max(prev, st); SAVE.best[d.id] = Math.max(SAVE.best[d.id] || 0, T); persist();
+  const tier = T >= 85 ? 'Fair AI Builder' : T >= 65 ? 'Careful Trainer' : 'Data Rookie';
+  $('#work').innerHTML = `<span class="kick">AI lab score</span><div class="score"><div><div class="big" id="bigs">0<small>/100</small></div><div class="stars3" aria-label="${st} of 3 stars">${'★'.repeat(st)}<span>${'★'.repeat(3 - st)}</span></div></div>
+      <div><span class="tier">${tier}</span><h2 style="margin-top:8px">${esc(d.title)} for ${esc(d.who)}</h2><p class="muted">Your model gets ${D.acc}% of new cases right${improved ? `, up from ${L.firstAcc}% after you collected better data` : ''}.</p></div></div>
+    <div class="bars"><div><span>Fair, balanced data</span><span class="t"><i data-w="${cat.data * 2}"></i></span><span>${cat.data}/50</span></div><div><span>Handling doubt</span><span class="t"><i data-w="${cat.alert * 4}"></i></span><span>${cat.alert}/25</span></div><div><span>Honesty & people</span><span class="t"><i data-w="${cat.honest * 4}"></i></span><span>${cat.honest}/25</span></div></div>
+    <div class="fbk"><div class="panelc"><h3 style="font-size:.95rem">🧠 Your data</h3><ul><li>${D.have === D.n ? 'It has seen every kind of case.' : `It has never seen ${D.n - D.have} kind${D.n - D.have > 1 ? 's' : ''} of case, so it guesses there.`}</li><li>${esc(d.trap)}</li></ul></div>
+      <div class="panelc"><h3 style="font-size:.95rem">⚖️ Your decisions</h3><ul><li>${esc(al.why)}</li><li>${esc(ho.why)}</li></ul></div></div>
+    <p class="real">🌍 <b>Real world:</b> ${esc(d.real)}</p>
+    <div class="row"><button class="btn main big" id="vb" type="button">Back to the village</button><button class="btn ghost" id="ag" type="button">Train it again</button></div>`;
+  app.querySelectorAll('.steps span').forEach(s => { s.className = 'done'; });
+  sfx(T >= 65 ? 'win' : 'step');
+  requestAnimationFrame(() => app.querySelectorAll('.bars i').forEach(i => i.style.width = i.dataset.w + '%'));
+  let n = 0; const big = $('#bigs'); const tick = () => { if(!big.isConnected) return; n = Math.min(T, n + Math.max(1, Math.round(T / 40))); big.innerHTML = `${n}<small>/100</small>`; if(n < T) requestAnimationFrame(tick); }; tick();
+  $('#vb').onclick = map; $('#ag').onclick = () => lab(L.i);
   window.scrollTo({top:0});
 }
 
@@ -257,5 +346,6 @@ function results(){
 if(/[?&]test\b/.test(location.search)) window.__vlTest = () => M && {id:M.m.id, step:M.step, asked:M.asked.slice(), pick:Object.assign({}, M.pick), def:M.def, tests:M.tests,
   good:M.m.questions.map((q, k) => q.good ? k : -1).filter(k => k >= 0), sharp:M.m.define.findIndex(d => d.kind === 'sharp'), best:Object.fromEntries(SLOTS.map(s => [s, M.m.slots[s].slice().sort((a, b) => b.pts - a.pts)[0].id])),
   impactBest:M.m.impact.findIndex(x => x.pts === 6)};
+if(/[?&]test\b/.test(location.search)) window.__vlLab = () => L && {id:L.d.id, step:L.step, keys:L.cards.map(c => c.key), picked:[...L.picked], take:L.d.take, bestAlert:L.d.alert.o.findIndex(o => o.pts === 25), bestHonest:L.d.honest.o.findIndex(o => o.pts === 25), ord:L.ord};
 title();
 })();

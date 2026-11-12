@@ -63,6 +63,11 @@ unlocking the next: **Explode It** (tap every part to learn its name, job and a 
 explain what must go under first, then a launch: stage separation, fairing separation, orbit, solar panels unfold).
 Stars from misses. Save key `rocket-lab` `{done:{mode:stars}, best:{mode:seconds}}`.
 
+### Mission Control (advanced, opens after Explode It)
+- **Thrust Tuner**: sliders for propellant, engines and staging feed the Tsiolkovsky rocket equation (`tcalc`); needs 9.4 km/s and thrust/weight above 1. Stars by liftoff mass.
+- **Countdown Crew**: eight go / no-go checks; one reading may be outside its limit (`CC_ROUNDS`).
+- **Orbit Desk**: six satellite jobs matched to LEO, polar Sun-synchronous, geostationary or lunar transfer (`ORB_ROUNDS`).
+
 ## Village Lab (`village/`), AI in Remote Areas
 The player is a junior scientist (two looks, own name). Six village problems with a named villager each: Thirsty Fields (farm
 watering), Pill Panic (elderly medicine reminders), Leaf Spot Mystery (crop disease), Night Jumbo Alert (elephant early warning),
@@ -92,3 +97,8 @@ Google Fonts; phone layout without sideways scroll. Security gate: 30/30.
 
 ## Deployment
 Push to `main`; the workflow runs the security gate and publishes to https://josesyson-physio.github.io/GamEdu/.
+
+### Data Detective (advanced labs, open after the first project)
+`VL_LABS` in `village/missions.js`. The learner picks 12 of 16 lopsided example cards, the model is tested on every class × condition cell
+(0 examples = guessing, 1 = shaky, 2+ = learned), then chooses how the AI behaves when unsure and how honestly it is explained.
+Score: data 50, handling doubt 25, honesty 25. Saved under the same `village-lab` key, so the platform pays rewards the same way.

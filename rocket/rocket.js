@@ -86,13 +86,16 @@ const MODES = [
   {id:'explore', n:'01', name:'Explode It', desc:'Blow the rocket apart and tap every part to learn what it is.'},
   {id:'name', n:'02', name:'Name Drop', desc:'Every part lost its name tag. Put them back. Fewer misses, more stars.'},
   {id:'job', n:'03', name:'What’s Its Job?', desc:'A part tells you what it does. Find who said it.'},
-  {id:'stack', n:'04', name:'Stack & Send', desc:'Build it from the bottom up, then launch a satellite to orbit.'}
+  {id:'stack', n:'04', name:'Stack & Send', desc:'Build it from the bottom up, then launch a satellite to orbit.'},
+  {id:'thrust', n:'05', adv:1, name:'Thrust Tuner', sub:'The rocket equation', desc:'Design a rocket light enough and strong enough to reach orbit. Fuel, engines, staging: your call.'},
+  {id:'count', n:'06', adv:1, name:'Countdown Crew', sub:'Go or no-go', desc:'You are the launch director. Read the data, catch the one thing that is wrong, and call the hold.'},
+  {id:'orbit', n:'07', adv:1, name:'Orbit Desk', sub:'The right orbit for the job', desc:'Weather, crops, village internet, the Moon. Send each satellite to the orbit that fits its job.'}
 ];
 let SAVE = {v:1, done:{}, best:{}};
 try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s && typeof s === 'object' && s.done && typeof s.done === 'object'){
   for(const m of MODES){ const v = Math.floor(+s.done[m.id]); if(v >= 1) SAVE.done[m.id] = Math.min(3, v); const b = +((s.best || {})[m.id]); if(b > 0 && b < 36000) SAVE.best[m.id] = Math.round(b); } } }catch(e){}
 const persist = () => { try{ localStorage.setItem(KEY, JSON.stringify(SAVE)); }catch(e){} };
-const unlocked = i => i === 0 || !!SAVE.done[MODES[i - 1].id];
+const unlocked = i => MODES[i].adv ? !!SAVE.done.explore : i === 0 || !!SAVE.done[MODES[i - 1].id];
 
 /* ---------- sound ---------- */
 let AC = null;
@@ -115,7 +118,7 @@ function title(){
   const done = Object.keys(SAVE.done).length;
   app.innerHTML = `<section class="title"><div class="stars"></div>
     <div class="tcopy"><span class="kick">Gamified Edu · Basics of Rocket Science</span><h1><span>LIFTOFF</span><span>LAB</span></h1>
-      <p class="pitch">Blow a rocket into pieces, learn what every part does, then stack it back and send a satellite to orbit. 13 parts. 4 missions. Zero boring diagrams.</p>
+      <p class="pitch">Blow a rocket into pieces, learn what every part does, then stack it back and send a satellite to orbit. Then fly it like an engineer: tune thrust, run the countdown, pick the orbit. 13 parts. 7 missions.</p>
       <div class="row"><button class="btn gold big" id="go" type="button">${done ? 'Continue' : 'Start the countdown'}</button><a class="btn ghost" href="../#cat-rocket">Back to Gamified Edu</a></div></div>
     <div class="tart"><svg viewBox="110 0 200 800" aria-hidden="true">${defs}${rocketMarkup('t')}</svg></div></section>`;
   $('#go').onclick = () => { sfx('tap'); modes(); };
@@ -123,10 +126,14 @@ function title(){
 function modes(){
   stopAnim();
   const total = MODES.reduce((a, m) => a + (SAVE.done[m.id] || 0), 0);
+  const card = (m, i) => { const op = unlocked(i), st = SAVE.done[m.id] || 0;
+    return `<button class="mode ${m.adv ? 'adv' : ''}" type="button" data-i="${i}" ${op ? '' : 'disabled'}><span class="top"><span class="n">${m.n}</span>${op ? `<span class="st" aria-label="${st} of 3 stars">${stars(st)}</span>` : `<span class="lock">🔒 ${m.adv ? 'Clear Explode It' : 'Clear the last one'}</span>`}</span><h3>${esc(m.name)}</h3><p>${esc(m.desc)}</p></button>`; };
   app.innerHTML = `<header class="bar"><button class="ib" id="back" type="button" aria-label="Title">←</button><div><b>Liftoff Lab</b><small>Rocket science, one part at a time</small></div><a class="ib" href="../#cat-rocket">GE</a></header>
-  <section class="modes"><div class="progress"><b>${total}/12 ★</b><span class="muted">Clear each mission to unlock the next. Every star earns sparks and XP in Gamified Edu.</span></div>
-  <div class="mgrid">${MODES.map((m, i) => { const op = unlocked(i), st = SAVE.done[m.id] || 0;
-    return `<button class="mode" type="button" data-i="${i}" ${op ? '' : 'disabled'}>${op ? '' : '<span class="lock">🔒 Clear the last one</span>'}<span class="n">${m.n}</span><h3>${esc(m.name)}</h3><p>${esc(m.desc)}</p><span class="st" aria-label="${st} of 3 stars">${stars(st)}</span></button>`; }).join('')}</div></section>`;
+  <section class="modes"><div class="progress"><b>${total}/${MODES.length * 3} ★</b><span class="muted">Every star earns sparks and XP in Gamified Edu.</span></div>
+  <div class="tier"><span class="kick">Flight school</span><h2>Know your rocket</h2><p class="muted">Clear each mission to unlock the next.</p></div>
+  <div class="mgrid">${MODES.map((m, i) => m.adv ? '' : card(m, i)).join('')}</div>
+  <div class="tier"><span class="kick">Mission control · Advanced</span><h2>Fly it like an engineer</h2><p class="muted">Real physics and real launch decisions. Opens after Explode It.</p></div>
+  <div class="mgrid">${MODES.map((m, i) => m.adv ? card(m, i) : '').join('')}</div></section>`;
   $('#back').onclick = title;
   app.querySelectorAll('.mode:not(:disabled)').forEach(b => b.onclick = () => { sfx('tap'); play(MODES[+b.dataset.i].id); });
 }
@@ -137,8 +144,9 @@ function stopAnim(){ cancelAnimationFrame(raf); raf = 0; if(S && S.timers) S.tim
 function play(mode){
   stopAnim();
   const m = MODES.find(x => x.id === mode);
+  if(m.adv) return advPlay(mode);
   app.innerHTML = `<header class="bar"><button class="ib" id="back" type="button" aria-label="Missions">←</button><div><b>${esc(m.name)}</b><small id="sub"></small></div><div class="hudstat" id="hud"></div></header>
-    <section class="play"><div class="stage" id="stage"><svg id="sv" viewBox="0 0 ${VW} ${VH}" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Rocket">${defs}
+    <section class="play"><div class="stage" id="stage"><svg id="sv" viewBox="-22 0 ${VW + 44} ${VH}" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Rocket">${defs}
       <g id="world"></g><g id="rk">${DRAW_ORDER.map(id => `<g class="prt" data-id="${id}" tabindex="0" role="button" aria-label="${esc(P[id].name)}"><g class="mv">${ART[id]}</g></g>`).join('')}</g><g id="fx"></g><g id="lbls"></g></svg></div>
     <aside class="panel" id="panel"></aside></section><div class="overlay" id="ov" hidden></div>`;
   $('#back').onclick = modes;
@@ -180,7 +188,7 @@ function drawLabels(){
   L.innerHTML = PARTS.map(p => {
     const known = S.mode === 'explore' || S.mode === 'job' || S.placed.has(p.id);
     const text = known ? wrapLabel(p.name) : ['?'];
-    const y = partCenterY(p.id) + (p.id === 'fins' ? 34 : p.id === 'payload' ? -10 : 0), lines = text.length, h = lines * 20 + 12, w = known ? 104 : 40;
+    const y = partCenterY(p.id) + (p.id === 'fins' ? 34 : p.id === 'payload' ? -10 : 0), lines = text.length, h = lines * 20 + 12, w = known ? 118 : 40;
     const left = p.side === 'L', bx = left ? 106 - w : 314, edge = p.id === 'fins' ? (left ? 108 : 312) : p.id === 'fairing' ? (left ? 128 : 292) : left ? Math.max(BOX[p.id][0], 160) : Math.min(BOX[p.id][2], 260);
     const cls = ['lbl', S.placed.has(p.id) && S.mode === 'name' ? 'ok' : '', S.visited.has(p.id) && S.mode === 'explore' ? 'ok' : '', S.selPart === p.id ? 'on' : ''].join(' ');
     return `<g class="${cls}" data-id="${p.id}" style="cursor:pointer"><line x1="${left ? bx + w : bx}" y1="${y}" x2="${edge}" y2="${y}"/><rect x="${bx}" y="${y - h / 2}" width="${w}" height="${h}" rx="9"/>
@@ -325,19 +333,158 @@ function finish(st, line){
   if(S.finished) return; S.finished = true;
   const m = S.mode, sec = Math.round((performance.now() - S.start) / 1000), prev = SAVE.done[m] || 0, best = SAVE.best[m];
   SAVE.done[m] = Math.max(prev, st); if(m !== 'explore' && (!best || sec < best)) SAVE.best[m] = sec; persist();
-  const i = MODES.findIndex(x => x.id === m), nx = MODES[i + 1];
+  const i = MODES.findIndex(x => x.id === m), nx = MODES[i + 1] && unlocked(i + 1) ? MODES[i + 1] : null;
   sfx('win');
   const ov = $('#ov'); ov.hidden = false;
   ov.innerHTML = `<div class="result"><div class="stars3" aria-label="${st} of 3 stars">${'★'.repeat(st)}<span>${'★'.repeat(3 - st)}</span></div><span class="kick">${esc(MODES[i].name)} cleared</span><h2>${esc(line)}</h2>
-    <p class="muted">${m === 'explore' ? 'Next: can you name them without help?' : `Misses: ${S.miss} · Time: ${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}${best && sec < best ? ' · New best!' : ''}`}</p>
-    ${st < 3 && m !== 'explore' ? `<p class="muted">For 3 stars: ${m === 'stack' ? 'stack with no misses' : m === 'name' ? 'one miss or fewer' : 'one miss or fewer'}.</p>` : ''}
+    <p class="muted">${m === 'explore' ? 'Next: can you name them without help?' : `${m === 'thrust' ? 'Failed flights' : 'Misses'}: ${S.miss} · Time: ${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}${best && sec < best ? ' · New best!' : ''}`}</p>
+    ${st < 3 && m !== 'explore' ? `<p class="muted">For 3 stars: ${{stack:'stack with no misses', thrust:'reach orbit with a liftoff mass under 115 t', orbit:'no wrong orbits'}[m] || 'one miss or fewer'}.</p>` : ''}
     <div class="row" style="justify-content:center">${nx ? `<button class="btn gold big" id="rNext" type="button">Next: ${esc(nx.name)}</button>` : `<a class="btn gold big" href="../#cat-rocket">Collect rewards</a>`}<button class="btn ghost" id="rAgain" type="button">Replay</button><button class="btn ghost" id="rModes" type="button">Missions</button></div></div>`;
   const n = $('#rNext'); if(n) n.onclick = () => play(nx.id); $('#rAgain').onclick = () => play(m); $('#rModes').onclick = modes;
   (n || $('#rAgain')).focus({preventScroll:true});
   if(!prev) toast('Sparks waiting for you in Gamified Edu');
 }
 
+
+/* ================= MISSION CONTROL (advanced) ================= */
+function advPlay(mode){
+  const m = MODES.find(x => x.id === mode);
+  app.innerHTML = `<header class="bar"><button class="ib" id="back" type="button" aria-label="Missions">←</button><div><b>${esc(m.name)}</b><small>Mission Control · ${esc(m.sub)}</small></div><div class="hudstat" id="hud"></div></header>
+    <section class="play adv"><div class="stage" id="stage"></div><aside class="panel" id="panel"></aside></section><div class="overlay" id="ov" hidden></div>`;
+  $('#back').onclick = modes;
+  S = {mode, miss:0, start:performance.now(), timers:[], finished:false, round:0, placed:new Set(), visited:new Set(), rounds:[]};
+  ({thrust:startThrust, count:startCount, orbit:startOrbit})[mode]();
+}
+const starField = (n, w, h) => Array.from({length:n}, (_, i) => `<circle cx="${(i * 97) % w}" cy="${(i * 173) % h}" r="${i % 5 ? 1.1 : 2}" fill="#fff" opacity="${.35 + (i % 4) * .15}"/>`).join('');
+const fmt = (n, d) => n.toLocaleString('en-IN', {maximumFractionDigits:d == null ? 0 : d, minimumFractionDigits:d || 0});
+
+/* ---------- 05: Thrust Tuner (the rocket equation) ---------- */
+const TT = {pay:1.5, need:9400, ve1:2943, ve2:3335, engKN:400};
+function tcalc(D){
+  const s2dry = D.s2 * .08 + .5, s1dry = D.s1 * .08 + D.eng * .5, m0 = TT.pay + s2dry + D.s2 + s1dry + D.s1;
+  const thrust = D.eng * TT.engKN, weight = m0 * 9.81, twr = thrust / weight;
+  const dv1 = TT.ve1 * Math.log(m0 / (m0 - D.s1)), m1 = TT.pay + s2dry + D.s2 + (D.staged ? 0 : s1dry), dv2 = TT.ve2 * Math.log(m1 / (m1 - D.s2));
+  const loss = twr < 1 ? dv1 + dv2 : twr < 1.2 ? (1.2 - twr) * 4000 : 0;
+  return {m0, thrust, weight, twr, dv1, dv2, loss, dv:Math.max(0, dv1 + dv2 - loss), s1dry};
+}
+function thrustSvg(D, R, path){
+  const h1 = 50 + D.s1 * 1.05, h2 = 24 + D.s2 * 1.9, base = 520, y1 = base - 22 - h1, y2 = y1 - 10 - h2;
+  const noz = Array.from({length:D.eng}, (_, i) => { const x = 210 + (i - (D.eng - 1) / 2) * (44 / Math.max(D.eng, 4)) * 1.6; return `<path d="M${x - 4} ${base - 22} L${x + 4} ${base - 22} L${x + 7} ${base - 4} L${x - 7} ${base - 4} Z" fill="url(#gDark)" stroke="#0b1230" stroke-width="1.5"/>`; }).join('');
+  return `<svg viewBox="0 70 420 500" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Rocket design and flight path">${defs}
+    <g transform="translate(-400,0)">${starField(150, 1220, 500)}</g>
+    <circle cx="210" cy="1520" r="1120" fill="none" stroke="#6fc3ff" stroke-width="1.5" stroke-dasharray="5 7" opacity=".7"/><text x="412" y="418" text-anchor="end" class="svgt">ORBIT</text>
+    <circle cx="210" cy="1520" r="1000" fill="url(#gEarth)"/><circle cx="210" cy="1520" r="998" fill="#1d5fae"/>
+    <g id="ttR"><rect x="186" y="${y1}" width="48" height="${h1}" rx="4" fill="url(#gBody)" stroke="#0b1230" stroke-width="2"/><rect x="186" y="${y1 + h1 * .45}" width="48" height="12" fill="#ff9f2e"/>
+      <rect x="194" y="${y1 - 10}" width="32" height="10" fill="${D.staged ? '#1d2233' : '#59627c'}" stroke="#0b1230" stroke-width="2"/>
+      <rect x="192" y="${y2}" width="36" height="${h2}" rx="3" fill="url(#gBody)" stroke="#0b1230" stroke-width="2"/><rect x="192" y="${y2 + h2 * .4}" width="36" height="8" fill="#2f6fd6"/>
+      <path d="M192 ${y2} C192 ${y2 - 26} 204 ${y2 - 40} 210 ${y2 - 44} C216 ${y2 - 40} 228 ${y2 - 26} 228 ${y2} Z" fill="#e8b54a" stroke="#0b1230" stroke-width="2"/>${noz}</g>
+    ${path || ''}</svg>`;
+}
+function startThrust(){
+  S.d = {s1:60, s2:6, eng:2, staged:true}; S.tries = 0;
+  $('#panel').innerHTML = `<div class="card"><span class="kick">Mission 05 · Flight design</span><h2>Reach orbit with the lightest rocket</h2>
+      <p class="hint">Cargo: a 1,500 kg satellite. To stay in low Earth orbit the rocket must gain about <b>9.4 km/s</b> of speed in total: 7.8 km/s sideways, plus what gravity and air steal on the way up.</p></div>
+    <div class="card tune">
+      <label><span>Stage 1 propellant</span><output id="o1"></output><input id="r1" type="range" min="20" max="200" step="5" value="60"></label>
+      <label><span>Stage 2 propellant</span><output id="o2"></output><input id="r2" type="range" min="2" max="40" step="1" value="6"></label>
+      <label><span>Stage 1 engines</span><output id="o3"></output><input id="r3" type="range" min="1" max="9" step="1" value="2"></label>
+      <label class="sw"><input id="r4" type="checkbox" checked><span>Drop stage 1 when it is empty (staging)</span></label></div>
+    <div class="card"><div class="read"><div><small>Liftoff mass</small><b id="vM"></b></div><div><small>Thrust ÷ weight</small><b id="vT"></b></div><div><small>Speed it can gain</small><b id="vD"></b></div></div>
+      <div class="dvbar" aria-hidden="true"><i id="b1"></i><i id="b2"></i><u></u></div><p class="hint" id="vH"></p>
+      <div class="row"><button class="btn gold big" id="fire" type="button">🚀 Launch test flight</button></div></div>
+    <div id="tfb"></div>
+    <details class="card eq"><summary>The rocket equation</summary><p>Speed gained = exhaust speed × ln(full mass ÷ empty mass).</p><p class="hint">Named after Konstantin Tsiolkovsky. Propellant is heavy, so doubling it does not double your speed. The trick is to throw away empty tanks: that is staging.</p></details>`;
+  const upd = () => { const D = S.d; D.s1 = +$('#r1').value; D.s2 = +$('#r2').value; D.eng = +$('#r3').value; D.staged = $('#r4').checked; const R = tcalc(D);
+    $('#o1').textContent = D.s1 + ' t'; $('#o2').textContent = D.s2 + ' t'; $('#o3').textContent = D.eng + ' × 400 kN';
+    $('#vM').textContent = fmt(R.m0, 1) + ' t'; const vt = $('#vT'); vt.textContent = fmt(R.twr, 2); vt.className = R.twr < 1 ? 'bad' : R.twr < 1.2 ? 'mid' : 'good';
+    const vd = $('#vD'); vd.textContent = fmt(R.dv / 1000, 2) + ' km/s'; vd.className = R.dv >= TT.need ? 'good' : R.dv >= 7800 ? 'mid' : 'bad';
+    const sc = 12000, a = R.twr < 1 ? 0 : R.dv1 - R.loss; $('#b1').style.width = Math.max(0, Math.min(100, a / sc * 100)) + '%'; $('#b2').style.width = Math.max(0, Math.min(100 - a / sc * 100, (R.twr < 1 ? 0 : R.dv2) / sc * 100)) + '%';
+    $('#vH').textContent = R.twr < 1 ? 'Thrust is less than weight. It will not leave the pad.' : R.twr < 1.2 ? 'It lifts, but slowly. Gravity steals speed while it crawls.' : 'Gold = stage 1, blue = stage 2. The line is the 9.4 km/s you need.';
+    $('#stage').innerHTML = thrustSvg(D, R); };
+  let q = 0; const soon = () => { if(q) return; q = requestAnimationFrame(() => { q = 0; if(S && S.mode === 'thrust' && !S.busy) upd(); }); };
+  ['r1', 'r2', 'r3', 'r4'].forEach(id => $('#' + id).addEventListener('input', soon)); upd();
+  $('#fire').onclick = () => { if(S.busy || S.finished) return; const D = S.d, R = tcalc(D); S.tries++; S.busy = true; sfx('rumble');
+    let path, head, body, ok = false;
+    if(R.twr < 1){ path = `<g opacity=".8">${[0, 1, 2, 3].map(i => `<circle cx="${170 + i * 27}" cy="520" r="${18 + i % 2 * 8}" fill="#e7ecf7" opacity=".6"/>`).join('')}</g>`; head = 'It never left the pad'; body = `The engines push with ${fmt(R.thrust)} kN, but the rocket weighs ${fmt(R.weight)} kN. Thrust must beat weight. Add engines, or carry less propellant.`; }
+    else if(R.dv < 3000){ path = `<path class="traj" d="M210 500 Q232 380 262 515"/>`; head = 'Up… and straight back down'; body = `It could only gain ${fmt(R.dv / 1000, 1)} km/s. It needs more propellant for its mass.`; }
+    else if(R.dv < 7800){ path = `<path class="traj" d="M210 500 Q300 240 408 512"/>`; head = 'It reached space, then fell back'; body = `Orbit is not about height. It is about going sideways so fast (7.8 km/s) that you keep missing the ground. You had ${fmt(R.dv / 1000, 1)} of the 9.4 km/s needed.`; }
+    else if(R.dv < TT.need){ path = `<path class="traj" d="M210 500 C214 420 300 392 418 470"/>`; head = 'So close'; body = `${fmt(R.dv / 1000, 2)} km/s. It skimmed along the top of the air, slowed down and came home. A little more push.`; }
+    else { ok = true; path = `<path class="traj ok" d="M210 500 C214 430 262 402 330 407"/><circle r="6" fill="#ffc94d"><animateMotion dur="7s" begin="1.4s" repeatCount="indefinite" path="M330 407 A1120 1120 0 0 1 430 421"/></circle>`; head = 'Orbit!'; body = `${fmt(R.dv / 1000, 2)} km/s from a ${fmt(R.m0, 1)} t rocket.`; }
+    let tip = '';
+    if(!ok && R.twr >= 1){ if(!D.staged) tip = `You carried the empty first stage (${fmt(R.s1dry, 1)} t of dead metal) all the way up. Turn staging on.`; else if(R.loss > 0) tip = `The slow lift-off cost about ${fmt(R.loss)} m/s. Aim for thrust ÷ weight of 1.2 or more.`; else if(R.dv2 < R.dv1 * .8) tip = 'Try more stage 2 propellant: after separation it pushes a much lighter rocket, so every tonne counts for more.'; else tip = 'Try more stage 1 propellant, and enough engines to lift it.'; }
+    $('#stage').innerHTML = thrustSvg(D, R, path);
+    $('#tfb').innerHTML = `<div class="fb ${ok ? 'ok' : 'no'}"><b>${head}.</b> ${esc(body)}${tip ? ' ' + esc(tip) : ''}${ok ? ' ' + (R.m0 <= 115 ? 'Beautifully light.' : R.m0 <= 140 ? 'For 3 stars, get the liftoff mass under 115 t.' : 'It works, but it is heavy. Lighter rockets cost less: under 140 t for 2 stars, under 115 t for 3.') : ''}</div>`;
+    if(!ok){ S.miss++; sfx('no'); } else sfx('go');
+    S.timers.push(setTimeout(() => { if(!S) return; S.busy = false; if(ok){ const st = R.m0 <= 115 ? 3 : R.m0 <= 140 ? 2 : 1; S.okCount = (S.okCount || 0) + 1;
+      if(st === 3 || S.okCount >= 2 || S.wantEnd){ finish(st, st === 3 ? 'A lean rocket that reaches orbit.' : 'Your design reaches orbit.'); }
+      else { S.wantEnd = false; $('#tfb').insertAdjacentHTML('beforeend', `<div class="row"><button class="btn ghost" id="bank" type="button">Bank ${st}★ and finish</button><span class="hint" style="align-self:center">or keep tuning for a lighter rocket</span></div>`); $('#bank').onclick = () => finish(st, 'Your design reaches orbit.'); } } }, ok ? 2600 : 900));
+  };
+}
+
+/* ---------- 06: Countdown Crew (go / no-go) ---------- */
+const CC_NOM = {wind:['Upper-level wind', '12 m/s', '20 m/s or less'], lightning:['Nearest lightning', 'None in 50 km', 'None within 10 km'], lox:['Liquid oxygen temp', '−184 °C', '−183 °C or colder'],
+  press:['Fuel tank pressure', '3.1 bar', '2.8 to 3.4 bar'], guid:['Guidance computers', '3 of 3 agree', 'All 3 must agree'], range:['Sea drop zone', 'Clear', 'No boats or aircraft'], batt:['Flight battery', '98%', '95% or more']};
+const CC_ROUNDS = [
+  {t:'T−60:00', k:'wind', v:'28 m/s', why:'High winds can bend and break a tall, thin rocket as it punches through them. Hold until they drop.'},
+  {t:'T−45:00', k:null, why:'Every reading is inside its limit. The count continues.'},
+  {t:'T−30:00', k:'lox', v:'−171 °C', why:'Too warm. The liquid oxygen is boiling off into gas, so the tank holds less than the engine needs.'},
+  {t:'T−20:00', k:'lightning', v:'Strike 6 km away', why:'A rocket and its exhaust trail can trigger lightning. No launch with a storm this close.'},
+  {t:'T−10:00', k:'guid', v:'2 of 3 agree', why:'One computer disagrees about where the rocket is pointing. Never fly with a confused brain.'},
+  {t:'T−05:00', k:'range', v:'Fishing boat inside', why:'The empty first stage falls into this patch of sea. Nobody may be under it.'},
+  {t:'T−02:00', k:'press', v:'3.9 bar', why:'Over the limit. The tank could burst. Vent it and check the valve before going on.'},
+  {t:'T−00:30', k:null, why:'All green. You are go for launch.'}];
+function startCount(){ S.round = 0; S.order = CC_ROUNDS.map(r => { const keys = shuffle(Object.keys(CC_NOM).filter(k => k !== r.k)).slice(0, r.k ? 3 : 4); if(r.k) keys.push(r.k); return shuffle(keys); }); countRender(''); }
+function countRender(msg, ok, solved){
+  const r = CC_ROUNDS[S.round], keys = S.order[S.round];
+  $('#stage').innerHTML = `<div class="console"><div class="clock"><small>Launch clock</small><b>${r.t}</b></div>
+    <div class="tiles">${keys.map(k => { const n = CC_NOM[k], bad = k === r.k; return `<button class="tile ${solved && bad ? 'hit' : ''}" type="button" data-k="${k}" ${solved ? 'disabled' : ''}><small>${esc(n[0])}</small><b>${esc(bad ? r.v : n[1])}</b><span>Limit: ${esc(n[2])}</span></button>`; }).join('')}</div></div>`;
+  $('#panel').innerHTML = `<div class="card"><span class="kick">Mission 06 · Check ${S.round + 1} of ${CC_ROUNDS.length}</span><h2>Go or no-go?</h2>
+      <p class="hint">You are the launch director. Compare each reading with its limit. If one is outside its limit, tap it to call a hold. If all are fine, say go.</p>${msg ? `<div class="fb ${ok ? 'ok' : 'no'}">${esc(msg)}</div>` : ''}
+      <div class="row">${solved ? `<button class="btn gold big" id="nx" type="button">${S.round + 1 < CC_ROUNDS.length ? 'Next check' : 'Finish the count'}</button>` : `<button class="btn gold big" id="allgo" type="button">✔ All go</button>`}</div></div>
+    <div class="card"><div class="meter"><b>${S.round + (solved ? 1 : 0)}/${CC_ROUNDS.length}</b><div class="bar3"><i style="width:${(S.round + (solved ? 1 : 0)) / CC_ROUNDS.length * 100}%"></i></div></div>
+      <p class="hint">Real launches are stopped for exactly these reasons. Chandrayaan-2’s first attempt in July 2019 was called off less than an hour before liftoff; it flew a week later.</p></div>`;
+  app.querySelectorAll('.tile').forEach(b => b.onclick = () => { const k = b.dataset.k; if(k === r.k){ sfx('ok'); countRender('Hold called. ' + r.why, true, true); } else { S.miss++; sfx('no'); countRender(`${CC_NOM[k][0]} reads ${CC_NOM[k][1]}, and the limit is “${CC_NOM[k][2]}”. That one is fine. Look again.`, false); } });
+  const g = $('#allgo'); if(g) g.onclick = () => { if(!r.k){ sfx('ok'); countRender(r.why, true, true); } else { S.miss++; sfx('no'); countRender('Not safe yet. One reading is outside its limit. Find it.', false); } };
+  const n = $('#nx'); if(n){ n.onclick = () => { S.round++; if(S.round >= CC_ROUNDS.length) return finish(S.miss <= 1 ? 3 : S.miss <= 3 ? 2 : 1, 'A safe count, all the way to zero.'); sfx('tick'); countRender(''); }; n.focus({preventScroll:true}); }
+}
+
+/* ---------- 07: Orbit Desk (which orbit for which job) ---------- */
+const ORB = {
+  leo:{n:'Low Earth orbit', d:'About 400 km up. One lap every 90 minutes.', no:'A low satellite races past. It sees any one place for only a few minutes at a time.'},
+  sso:{n:'Polar Sun-synchronous orbit', d:'600 to 800 km up, over the poles. Sees every place at the same local time of day.', no:'A polar satellite passes overhead, then is gone for hours or days.'},
+  geo:{n:'Geostationary orbit', d:'35,786 km above the equator. One lap a day, so it hangs over one spot.', no:'36,000 km is too far away for this job.'},
+  moon:{n:'Lunar transfer', d:'384,000 km. Leaves Earth orbit and crosses to the Moon.', no:'That path leaves Earth behind completely.'}};
+const ORB_ROUNDS = [
+  {job:'Cyclone watcher', need:'It must stare at India all day and all night, never looking away, to track storms as they grow.', a:'geo', real:'India’s INSAT-3D class weather satellites watch from geostationary orbit.'},
+  {job:'Crop mapper', need:'It must photograph every farm in the country, always in the same morning light, so pictures from different weeks can be compared.', a:'sso', real:'India’s Resourcesat satellites map crops from Sun-synchronous orbit.'},
+  {job:'Village TV and internet link', need:'A dish on a village school roof is bolted in place. The satellite must never move in the sky.', a:'geo', real:'GSAT communication satellites sit in geostationary orbit, so a fixed dish always points at them.'},
+  {job:'Space station', need:'Astronauts and supplies must fly up and back often, using as little rocket as possible.', a:'leo', real:'The International Space Station flies about 400 km up.'},
+  {job:'Flood radar', need:'It must scan the whole planet, pole to pole, and see flooded villages through thick cloud.', a:'sso', real:'Radar satellites such as RISAT-1 flew in polar Sun-synchronous orbits.'},
+  {job:'Moon lander', need:'It carries a lander and a rover to explore near the Moon’s south pole.', a:'moon', real:'Chandrayaan-3 raised its orbit step by step, crossed to the Moon and landed in August 2023.'}];
+function orbitSvg(pick, right){
+  const cls = k => `orb ${pick === k ? (right ? 'ok' : 'no') : ''}`;
+  return `<svg viewBox="0 50 420 410" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Orbits around Earth, not to scale">${defs}<g transform="translate(-400,-200)">${starField(220, 1220, 1040)}</g>
+    <g class="${cls('moon')}" data-k="moon" tabindex="0" role="button" aria-label="Lunar transfer"><path d="M196 300 C120 120 250 60 344 96" fill="none"/><circle cx="356" cy="92" r="20" fill="#cfd4e2" stroke="#0b1230" stroke-width="2"/><circle cx="350" cy="86" r="4" fill="#aab1c4"/><circle cx="362" cy="98" r="3" fill="#aab1c4"/><text x="356" y="134" text-anchor="middle" class="svgt">MOON</text></g>
+    <g class="${cls('geo')}" data-k="geo" tabindex="0" role="button" aria-label="Geostationary orbit"><ellipse cx="210" cy="340" rx="186" ry="74" fill="none"/><circle r="6" fill="#ffc94d" cx="396" cy="340"/><text x="210" y="436" text-anchor="middle" class="svgt">GEOSTATIONARY · 35,786 km</text></g>
+    <g class="${cls('sso')}" data-k="sso" tabindex="0" role="button" aria-label="Polar Sun-synchronous orbit"><ellipse cx="210" cy="340" rx="34" ry="96" fill="none"/><circle r="5" fill="#3ee0b0"><animateMotion dur="5s" repeatCount="indefinite" path="M210 244 A34 96 0 1 1 209.9 244"/></circle><text x="210" y="234" text-anchor="middle" class="svgt">POLAR · 700 km</text></g>
+    <circle cx="210" cy="340" r="50" fill="#1d5fae" stroke="#6fc3ff" stroke-width="3"/><path d="M186 318 q14 -12 26 0 q10 12 -4 22 q-16 6 -22 -8 Z M214 348 q12 -4 16 8 q-2 12 -14 8 Z" fill="#3c8a4a"/>
+    <g class="${cls('leo')}" data-k="leo" tabindex="0" role="button" aria-label="Low Earth orbit"><ellipse cx="210" cy="340" rx="72" ry="26" fill="none"/><circle r="5" fill="#ff6a3d"><animateMotion dur="3s" repeatCount="indefinite" path="M138 340 A72 26 0 1 1 138 340.1"/></circle><text x="296" y="372" class="svgt">LOW · 400 km</text></g>
+    <text x="14" y="452" class="svgt" opacity=".6">Not to scale</text></svg>`;
+}
+function startOrbit(){ S.round = 0; S.rounds = shuffle(ORB_ROUNDS.map((r, i) => i)); orbitRender(''); }
+function orbitRender(msg, ok, solved, pick){
+  const r = ORB_ROUNDS[S.rounds[S.round]];
+  $('#stage').innerHTML = orbitSvg(pick, ok);
+  $('#panel').innerHTML = `<div class="card"><span class="kick">Mission 07 · Satellite ${S.round + 1} of ${ORB_ROUNDS.length}</span><h2>${esc(r.job)}</h2><p>${esc(r.need)}</p><p class="hint">Which orbit do you send it to? Tap a ring, or pick below.</p>${msg ? `<div class="fb ${ok ? 'ok' : 'no'}">${esc(msg)}</div>` : ''}
+      ${solved ? `<div class="fact"><b>Real mission:</b> ${esc(r.real)}</div><div class="row"><button class="btn gold big" id="nx" type="button">${S.round + 1 < ORB_ROUNDS.length ? 'Next satellite' : 'Finish'}</button></div>` : ''}</div>
+    <div class="card olist">${Object.entries(ORB).map(([k, o]) => `<button class="ochip ${solved && k === r.a ? 'ok' : ''}" type="button" data-k="${k}" ${solved ? 'disabled' : ''}><b>${esc(o.n)}</b><span>${esc(o.d)}</span></button>`).join('')}</div>`;
+  const choose = k => { if(solved || S.finished) return; if(k === r.a){ sfx('ok'); orbitRender(`Right. ${ORB[k].n}: ${ORB[k].d}`, true, true, k); } else { S.miss++; sfx('no'); orbitRender(`Not ${ORB[k].n.toLowerCase()}. ${ORB[k].no}`, false, false, k); } };
+  app.querySelectorAll('.ochip').forEach(b => b.onclick = () => choose(b.dataset.k));
+  app.querySelectorAll('.orb').forEach(g => { g.addEventListener('click', () => choose(g.dataset.k)); g.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); choose(g.dataset.k); } }); });
+  const n = $('#nx'); if(n){ n.onclick = () => { S.round++; if(S.round >= ORB_ROUNDS.length) return finish(S.miss === 0 ? 3 : S.miss <= 2 ? 2 : 1, 'Every satellite is in the right orbit.'); orbitRender(''); }; n.focus({preventScroll:true}); }
+}
+
 /* test hook (only with ?test in the URL): read-only state */
-if(/[?&]test\b/.test(location.search)) window.__rlTest = () => S && {mode:S.mode, t:S.t, placed:[...S.placed], visited:[...S.visited], miss:S.miss, round:S.round, job:S.rounds[S.round] || null, need:S.mode === 'stack' ? nextNeeded() : null, finished:!!S.finished, launchT:S.launch ? S.launch.T : null};
+if(/[?&]test\b/.test(location.search)) window.__rlTest = () => S && {mode:S.mode, t:S.t, placed:[...S.placed], visited:[...S.visited], miss:S.miss, round:S.round, job:S.rounds[S.round] || null, need:S.mode === 'stack' ? nextNeeded() : null, fault:S.mode === 'count' ? CC_ROUNDS[S.round] && CC_ROUNDS[S.round].k : null, orbit:S.mode === 'orbit' && S.rounds.length ? ORB_ROUNDS[S.rounds[S.round]].a : null, finished:!!S.finished, launchT:S.launch ? S.launch.T : null};
 title();
 })();

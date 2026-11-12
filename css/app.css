@@ -300,3 +300,29 @@ footer.foot{padding-block:28px;color:var(--muted);font-size:13.5px;border-top:2p
 .rule{font-size:14px;background:#eef5ea;border-radius:10px;padding:8px 12px}
 .grid3{align-items:start}
 .ghostcard,.gcard:not(:has(.art)){min-height:0}
+
+/* ---------- v3: premium pass (alignment, depth, calmer edges) ---------- */
+:root{--pop:0 2px 0 var(--ink),0 12px 24px -16px rgba(12,34,25,.55)}
+section.wrap{padding-block:34px}
+.sechead{align-items:baseline}
+.grid3{align-items:stretch;gap:22px}
+.gcard,.ccard,.continue{border-width:2px;box-shadow:0 3px 0 var(--ink),0 22px 40px -26px rgba(12,34,25,.6)}
+.gcard:hover,.ccard:hover{transform:translateY(-4px)}
+.gcard .art,.ccard .art{border-bottom-width:2px}
+.gcard .body,.ccard .body{padding:16px 18px 18px;gap:6px}
+.gcard .foot{margin-top:auto;padding-top:8px}
+.gcard p,.ccard p{text-wrap:pretty}
+.btn{border-width:2px}
+.ghostcard{box-shadow:none;border-width:2px}
+.advcard{background:linear-gradient(160deg,#fff7dc,var(--cream));border-color:var(--gold2);box-shadow:0 3px 0 var(--gold2),0 22px 40px -26px rgba(12,34,25,.6)}
+.advcard:hover{transform:none}
+.advcard .subj{color:var(--gold2)}
+.journey{grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr))}
+.journey li{box-shadow:0 10px 22px -18px rgba(12,34,25,.5)}
+.catworld::after,.gamehero::after{background:linear-gradient(90deg,rgba(12,34,25,.82) 0,rgba(12,34,25,.55) 45%,rgba(12,34,25,.1) 80%),linear-gradient(transparent 30%,rgba(12,34,25,.75))}
+.catworld h1,.gamehero h1{text-shadow:0 2px 14px rgba(0,0,0,.45)}
+.rank li,.news li,.planned li,.rewards-list li{box-shadow:0 8px 18px -16px rgba(12,34,25,.45)}
+.walkbtn{box-shadow:0 2px 0 var(--ink),0 10px 20px -10px rgba(12,34,25,.6)}
+@media (max-width:899px){.walkbtn{padding:7px 12px;font-size:0;opacity:.92}.walkbtn::after{content:'Demo';font-size:12px}}
+@media (max-width:600px){section.wrap{padding-block:24px}.grid3{gap:16px}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}

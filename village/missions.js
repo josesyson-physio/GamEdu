@@ -168,3 +168,47 @@ window.VL_MISSIONS = [
   thanks:['People don’t understand what the machine is saying.', 'The light helps. I wish it would also call me.', 'The light went red after the rain, and I told every house to boil water. Not one child fell sick this time.'],
   real:'Sensors can show warning signs like cloudiness; only a lab or test kit confirms germs. Saying what your idea can’t do is good science.'}
 ];
+
+/* Data Detective labs: train a small AI the fair way. A = what it must tell apart, B = the conditions it will meet in real life.
+   pool = how many example cards of each A×B kind are easy to find (real data is lopsided). The learner picks `take` of them. */
+window.VL_LABS = [
+ {id:'leafai', title:'Leaf Doctor', icon:'🍃', who:'Raju', need:'Raju wants his phone to tell a sick tomato leaf from a healthy one, out in the field.',
+  A:[{k:'sick', n:'Sick leaf', e:'🍂'}, {k:'well', n:'Healthy leaf', e:'🍃'}], B:[{k:'sun', n:'Bright sun', c:'#fff1c2'}, {k:'shade', n:'Evening shade', c:'#d9d2e6'}, {k:'wet', n:'Wet after rain', c:'#cfe8f7'}],
+  pool:{'well|sun':5, 'sick|sun':3, 'well|shade':2, 'sick|shade':2, 'well|wet':2, 'sick|wet':2}, take:12,
+  trap:'Most photos people take are of healthy leaves on sunny days. An AI fed only those calls every leaf healthy.',
+  alert:{q:'When should it warn Raju?', o:[
+    {t:'Only when it is almost certain the leaf is sick', pts:10, why:'It will miss early disease, and by the time it is certain the whole row is infected.'},
+    {t:'When it is fairly sure, and show how sure it is', pts:25, why:'Catches disease early without crying wolf every day. Raju sees the confidence and can decide.'},
+    {t:'At the smallest doubt', pts:12, why:'Daily false alarms mean wasted spray money, and soon Raju stops listening.'}]},
+  honest:{q:'What do you tell Raju about it?', o:[
+    {t:'“It can be wrong. If it says sick, show the leaf to the agriculture officer before you spray.”', pts:25, why:'Honest about limits, and a person makes the final call.'},
+    {t:'“The AI is always right. Do what it says.”', pts:0, why:'No AI is always right. One wrong call and he loses money and trust.'},
+    {t:'Nothing. He doesn’t need to know how it works.', pts:5, why:'People can only trust a tool they understand the limits of.'}]},
+  real:'Plant-disease apps trained mostly on clean lab photos have been found to do much worse on real, messy field photos.'},
+ {id:'jumboai', title:'Jumbo Watch', icon:'🐘', who:'Shivanna', need:'A night camera at the forest edge must tell an elephant from a cow, a person or a waving bush.',
+  A:[{k:'ele', n:'Elephant', e:'🐘'}, {k:'not', n:'Not an elephant', e:'🐄'}], B:[{k:'moon', n:'Moonlit night', c:'#e3e6f5'}, {k:'dark', n:'Pitch dark', c:'#b9bdd1'}, {k:'fog', n:'Fog and rain', c:'#d5e2e0'}],
+  pool:{'not|moon':5, 'ele|moon':3, 'not|dark':2, 'ele|dark':2, 'not|fog':2, 'ele|fog':2}, take:12,
+  trap:'Elephants are rare in the photos, and they come on the darkest, foggiest nights. That is exactly the data that is hardest to collect.',
+  alert:{q:'When should the siren go off?', o:[
+    {t:'Only when it is almost certain it is an elephant', pts:6, why:'A missed elephant can cost a crop, a house or a life. Being “sure” is too late.'},
+    {t:'When it is fairly sure', pts:17, why:'Reasonable, but on a foggy night “fairly sure” may still miss the one that matters.'},
+    {t:'Even at a small chance, with a softer first warning', pts:25, why:'When a miss is dangerous, lean towards warning. A gentle first alert keeps false alarms bearable.'}]},
+  honest:{q:'What do you tell the village?', o:[
+    {t:'“It will sometimes ring for a cow, and may miss in thick fog. Keep the night watch going, and tell us every wrong alarm.”', pts:25, why:'Honest, keeps people in the loop, and their reports become new training data.'},
+    {t:'“You are safe now. No need for the night watch.”', pts:0, why:'Dangerous. The first miss could be deadly.'},
+    {t:'“Trust the machine, it is very advanced.”', pts:3, why:'Sounds impressive, explains nothing, and breaks trust at the first false alarm.'}]},
+  real:'Early-warning systems for elephants in India combine cameras and sensors with people: forest staff and village volunteers still confirm and respond.'},
+ {id:'voiceai', title:'Voice Helper', icon:'🗣️', who:'Kamala Ajji', need:'A voice helper must understand Kannada spoken by everyone in the village, not only the people who built it.',
+  A:[{k:'kid', n:'Child', e:'🧒'}, {k:'woman', n:'Woman', e:'👩'}, {k:'elder', n:'Elder', e:'👵'}], B:[{k:'quiet', n:'Quiet room', c:'#eef3e2'}, {k:'noisy', n:'Windy field', c:'#f3e3cf'}],
+  pool:{'kid|quiet':4, 'woman|quiet':4, 'elder|quiet':2, 'kid|noisy':2, 'woman|noisy':2, 'elder|noisy':2}, take:12,
+  trap:'Recordings are easiest to get from schoolchildren in a quiet classroom. An AI trained on those cannot understand a grandmother in a windy field.',
+  alert:{q:'What should it do when it is not sure what it heard?', o:[
+    {t:'Guess and carry on', pts:5, why:'A wrong guess about medicine or money can do real harm.'},
+    {t:'Say it back and ask: “Did you say…?”', pts:25, why:'Checking takes two seconds and prevents mistakes, and it is how polite people talk too.'},
+    {t:'Stay silent', pts:8, why:'The person is left wondering whether it is broken.'}]},
+  honest:{q:'Who do you test it with before you share it?', o:[
+    {t:'Elders, women and children from this village, indoors and outdoors', pts:25, why:'The people who will use it, in the places they will use it.'},
+    {t:'My classmates', pts:6, why:'They sound like the training data. You will not find the real problems.'},
+    {t:'No need: it scored 95% on my laptop', pts:0, why:'A score on your own data says little about people the AI has never heard.'}]},
+  real:'Speech tools often work worst for older speakers and local accents, because those voices are rare in the recordings they learned from.'}
+];

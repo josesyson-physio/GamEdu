@@ -5,14 +5,16 @@ GE.ANATOMY_RUN_URL = 'https://josesyson-physio.github.io/anatomy_run/';
 GE.ROOT_CAUSE_URL = 'root-cause/';
 /* games in the other worlds. Each keeps its own save; the platform reads it (never writes) and pays sparks per unit. */
 GE.WORLD_GAMES = {
-  rocket:{id:'liftoff', name:'Liftoff Lab', url:'rocket/', key:'rocket-lab', subject:'Rocket parts \u00b7 Names and jobs', unitName:'mission',
-    desc:'Explode a two-stage rocket, learn all 13 parts, name them, match their jobs, then stack it back and launch a satellite to orbit.',
-    units:{explore:'Explode It', name:'Name Drop', job:'What\u2019s Its Job?', stack:'Stack & Send'},
-    learn:['13 rocket parts and what each one does','Why rockets carry their own oxygen','How staging drops dead weight','Newton\u2019s third law in action'], badge:'liftoff'},
+  rocket:{id:'liftoff', name:'Liftoff Lab', url:'rocket/', key:'rocket-lab', subject:'Rocket parts \u00b7 Flight engineering', unitName:'mission',
+    desc:'Explode a two-stage rocket and learn all 13 parts, then fly it like an engineer: tune thrust with the rocket equation, run the countdown and pick the right orbit.',
+    units:{explore:'Explode It', name:'Name Drop', job:'What\u2019s Its Job?', stack:'Stack & Send', thrust:'Thrust Tuner', count:'Countdown Crew', orbit:'Orbit Desk'},
+    advanced:['Thrust Tuner: design a rocket with the real rocket equation','Countdown Crew: make go / no-go calls from live launch data','Orbit Desk: match weather, crop and village-internet satellites to their orbits'],
+    learn:['13 rocket parts and what each one does','Why staging works: the rocket equation','Thrust against weight at liftoff','Reading data to make a safe launch call','Which orbit suits which satellite job'], badge:'liftoff'},
   'ai-remote':{id:'village', name:'Village Lab', url:'village/', key:'village-lab', subject:'Junior scientist \u00b7 Design thinking', unitName:'project',
-    desc:'Listen to a villager, define the real problem, build a fix from sensors and AI, field-test it and pitch it. Scored out of 100.',
-    units:{farm:'Thirsty Fields', ajji:'Pill Panic', leaf:'Leaf Spot Mystery', jumbo:'Night Jumbo Alert', school:'Teacher-less Tuesday', well:'Well, Well, Well'},
-    learn:['Listening before building (empathy)','Defining a sharp, real problem','Sense, think, tell, power, connect','Using AI only where it adds value','Designing for no internet, power cuts and tight budgets'], badge:'villageHero'}
+    desc:'Listen to a villager, define the real problem, build a fix from sensors and AI, field-test it and pitch it. Then train an AI the fair way in the Data Detective lab.',
+    units:{farm:'Thirsty Fields', ajji:'Pill Panic', leaf:'Leaf Spot Mystery', jumbo:'Night Jumbo Alert', school:'Teacher-less Tuesday', well:'Well, Well, Well', leafai:'Data Detective: Leaf Doctor', jumboai:'Data Detective: Jumbo Watch', voiceai:'Data Detective: Voice Helper'},
+    advanced:['Data Detective: choose the examples an AI learns from','Find blind spots and bias, then collect better data','Decide what the AI does when it is unsure, and tell people honestly'],
+    learn:['Listening before building (empathy)','Defining a sharp, real problem','Sense, think, tell, power, connect','Using AI only where it adds value','Designing for no internet, power cuts and tight budgets','Fair training data, bias and blind spots','Being honest about what an AI gets wrong'], badge:'villageHero'}
 };
 
 GE.CATEGORIES = [
@@ -20,11 +22,11 @@ GE.CATEGORIES = [
    blurb:'Learn the body through play, earn skills and build your own clinic.',
    planned:['Anatomy Run (live now)','More physiotherapy games (in development)']},
   {id:'rocket', name:'Basics of Rocket Science', short:'Rocket Science', status:'available', env:'rocket',
-   blurb:'Blow a rocket apart, learn every part and its job, then stack it back and launch a satellite.',
-   planned:['Thrust Tuner: balance fuel against weight to reach orbit','Countdown Crew: run the launch-day checklist before the clock hits zero','Orbit Golf: fire short engine burns to land in the right orbit','Moon Shot: plan stages and a gravity slingshot'], note:'Ideas for the next rocket games; the final list may change.'},
+   blurb:'Blow a rocket apart and learn every part, then design, count down and fly real missions.',
+   planned:['Orbit Golf: fire short engine burns to land in the right orbit','Moon Shot: plan stages and a gravity slingshot','Re-entry: bring a capsule home through the heat'], note:'Ideas for the next rocket games; the final list may change.'},
   {id:'ai-remote', name:'AI in Remote Areas', short:'AI in Remote Areas', status:'available', env:'ai',
    blurb:'Be a junior scientist: take a real village problem and build a smart fix that works with patchy power, no internet and a tight budget.',
-   planned:['Signal Hunt: design for places with zero network','Data Detective: label photos to train a fair AI','Voice First: build for people who can\u2019t read','Village Expo: pitch your best ideas to a panel'], note:'Ideas for the next games in this world; the final list may change.'}
+   planned:['Signal Hunt: design for places with zero network','Voice First: build for people who can\u2019t read','Village Expo: pitch your best ideas to a panel'], note:'Ideas for the next games in this world; the final list may change.'}
 ];
 GE.STATUS_LABEL = {available:'Available', soon:'Coming soon', future:'Future expansion'};
 
