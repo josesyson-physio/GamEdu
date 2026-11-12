@@ -87,15 +87,16 @@ const MODES = [
   {id:'name', n:'02', name:'Name Drop', desc:'Every part lost its name tag. Put them back. Fewer misses, more stars.'},
   {id:'job', n:'03', name:'What’s Its Job?', desc:'A part tells you what it does. Find who said it.'},
   {id:'stack', n:'04', name:'Stack & Send', desc:'Build it from the bottom up, then launch a satellite to orbit.'},
-  {id:'thrust', n:'05', adv:1, name:'Thrust Tuner', sub:'The rocket equation', desc:'Design a rocket light enough and strong enough to reach orbit. Fuel, engines, staging: your call.'},
-  {id:'count', n:'06', adv:1, name:'Countdown Crew', sub:'Go or no-go', desc:'You are the launch director. Read the data, catch the one thing that is wrong, and call the hold.'},
-  {id:'orbit', n:'07', adv:1, name:'Orbit Desk', sub:'The right orbit for the job', desc:'Weather, crops, village internet, the Moon. Send each satellite to the orbit that fits its job.'}
+  {id:'puzzle', n:'05', open:1, name:'Flight Puzzle', sub:'How a flight works', desc:'Put a launch in the right order, from ignition to orbit. Then sort rocket truths from myths.'},
+  {id:'thrust', n:'06', adv:1, name:'Thrust Tuner', sub:'The rocket equation', desc:'Design a rocket light enough and strong enough to reach orbit. Fuel, engines, staging: your call.'},
+  {id:'count', n:'07', adv:1, name:'Countdown Crew', sub:'Go or no-go', desc:'You are the launch director. Read the data, catch the one thing that is wrong, and call the hold.'},
+  {id:'orbit', n:'08', adv:1, name:'Orbit Desk', sub:'The right orbit for the job', desc:'Weather, crops, village internet, the Moon. Send each satellite to the orbit that fits its job.'}
 ];
 let SAVE = {v:1, done:{}, best:{}};
 try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s && typeof s === 'object' && s.done && typeof s.done === 'object'){
   for(const m of MODES){ const v = Math.floor(+s.done[m.id]); if(v >= 1) SAVE.done[m.id] = Math.min(3, v); const b = +((s.best || {})[m.id]); if(b > 0 && b < 36000) SAVE.best[m.id] = Math.round(b); } } }catch(e){}
 const persist = () => { try{ localStorage.setItem(KEY, JSON.stringify(SAVE)); }catch(e){} };
-const unlocked = i => MODES[i].adv ? !!SAVE.done.explore : i === 0 || !!SAVE.done[MODES[i - 1].id];
+const unlocked = i => MODES[i].adv || MODES[i].open ? !!SAVE.done.explore : i === 0 || !!SAVE.done[MODES[i - 1].id];
 
 /* ---------- sound ---------- */
 let AC = null;
@@ -118,7 +119,7 @@ function title(){
   const done = Object.keys(SAVE.done).length;
   app.innerHTML = `<section class="title"><div class="stars"></div>
     <div class="tcopy"><span class="kick">Gamified Edu · Basics of Rocket Science</span><h1><span>LIFTOFF</span><span>LAB</span></h1>
-      <p class="pitch">Blow a rocket into pieces, learn what every part does, then stack it back and send a satellite to orbit. Then fly it like an engineer: tune thrust, run the countdown, pick the orbit. 13 parts. 7 missions.</p>
+      <p class="pitch">Blow a rocket into pieces, learn what every part does, then stack it back and send a satellite to orbit. Then fly it like an engineer: tune thrust, run the countdown, pick the orbit. 13 parts. 8 missions.</p>
       <div class="row"><button class="btn gold big" id="go" type="button">${done ? 'Continue' : 'Start the countdown'}</button><a class="btn ghost" href="../#cat-rocket">Back to Gamified Edu</a></div></div>
     <div class="tart"><svg viewBox="110 0 200 800" aria-hidden="true">${defs}${rocketMarkup('t')}</svg></div></section>`;
   $('#go').onclick = () => { sfx('tap'); modes(); };
@@ -127,7 +128,7 @@ function modes(){
   stopAnim();
   const total = MODES.reduce((a, m) => a + (SAVE.done[m.id] || 0), 0);
   const card = (m, i) => { const op = unlocked(i), st = SAVE.done[m.id] || 0;
-    return `<button class="mode ${m.adv ? 'adv' : ''}" type="button" data-i="${i}" ${op ? '' : 'disabled'}><span class="top"><span class="n">${m.n}</span>${op ? `<span class="st" aria-label="${st} of 3 stars">${stars(st)}</span>` : `<span class="lock">🔒 ${m.adv ? 'Clear Explode It' : 'Clear the last one'}</span>`}</span><h3>${esc(m.name)}</h3><p>${esc(m.desc)}</p></button>`; };
+    return `<button class="mode ${m.adv ? 'adv' : ''}" type="button" data-i="${i}" ${op ? '' : 'disabled'}><span class="top"><span class="n">${m.n}</span>${op ? `<span class="st" aria-label="${st} of 3 stars">${stars(st)}</span>` : `<span class="lock">🔒 ${m.adv || m.open ? 'Clear Explode It' : 'Clear the last one'}</span>`}</span><h3>${esc(m.name)}</h3><p>${esc(m.desc)}</p></button>`; };
   app.innerHTML = `<header class="bar"><button class="ib" id="back" type="button" aria-label="Title">←</button><div><b>Liftoff Lab</b><small>Rocket science, one part at a time</small></div><a class="ib" href="../#cat-rocket">GE</a></header>
   <section class="modes"><div class="progress"><b>${total}/${MODES.length * 3} ★</b><span class="muted">Every star earns sparks and XP in Gamified Edu.</span></div>
   <div class="tier"><span class="kick">Flight school</span><h2>Know your rocket</h2><p class="muted">Clear each mission to unlock the next.</p></div>
@@ -144,7 +145,7 @@ function stopAnim(){ cancelAnimationFrame(raf); raf = 0; if(S && S.timers) S.tim
 function play(mode){
   stopAnim();
   const m = MODES.find(x => x.id === mode);
-  if(m.adv) return advPlay(mode);
+  if(m.adv || m.open) return advPlay(mode);
   app.innerHTML = `<header class="bar"><button class="ib" id="back" type="button" aria-label="Missions">←</button><div><b>${esc(m.name)}</b><small id="sub"></small></div><div class="hudstat" id="hud"></div></header>
     <section class="play"><div class="stage" id="stage"><svg id="sv" viewBox="-22 0 ${VW + 44} ${VH}" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Rocket">${defs}
       <g id="world"></g><g id="rk">${DRAW_ORDER.map(id => `<g class="prt" data-id="${id}" tabindex="0" role="button" aria-label="${esc(P[id].name)}"><g class="mv">${ART[id]}</g></g>`).join('')}</g><g id="fx"></g><g id="lbls"></g></svg></div>
@@ -349,16 +350,56 @@ function finish(st, line){
 /* ================= MISSION CONTROL (advanced) ================= */
 function advPlay(mode){
   const m = MODES.find(x => x.id === mode);
-  app.innerHTML = `<header class="bar"><button class="ib" id="back" type="button" aria-label="Missions">←</button><div><b>${esc(m.name)}</b><small>Mission Control · ${esc(m.sub)}</small></div><div class="hudstat" id="hud"></div></header>
+  app.innerHTML = `<header class="bar"><button class="ib" id="back" type="button" aria-label="Missions">←</button><div><b>${esc(m.name)}</b><small>${m.adv ? 'Mission Control · ' : ''}${esc(m.sub)}</small></div><div class="hudstat" id="hud"></div></header>
     <section class="play adv"><div class="stage" id="stage"></div><aside class="panel" id="panel"></aside></section><div class="overlay" id="ov" hidden></div>`;
   $('#back').onclick = modes;
   S = {mode, miss:0, start:performance.now(), timers:[], finished:false, round:0, placed:new Set(), visited:new Set(), rounds:[]};
-  ({thrust:startThrust, count:startCount, orbit:startOrbit})[mode]();
+  ({puzzle:startPuzzle, thrust:startThrust, count:startCount, orbit:startOrbit})[mode]();
 }
 const starField = (n, w, h) => Array.from({length:n}, (_, i) => `<circle cx="${(i * 97) % w}" cy="${(i * 173) % h}" r="${i % 5 ? 1.1 : 2}" fill="#fff" opacity="${.35 + (i % 4) * .15}"/>`).join('');
 const fmt = (n, d) => n.toLocaleString('en-IN', {maximumFractionDigits:d == null ? 0 : d, minimumFractionDigits:d || 0});
 
-/* ---------- 05: Thrust Tuner (the rocket equation) ---------- */
+/* ---------- 05: Flight Puzzle (order the flight, then true or myth) ---------- */
+const PZ_STEPS = [
+  ['Engines ignite', 'Fuel and oxygen meet in the combustion chamber and start to burn.'],
+  ['Liftoff', 'Thrust grows bigger than the rocket’s weight, so it leaves the pad.'],
+  ['Hardest push from the air', 'About a minute up, speed and air together press hardest on the rocket. Engineers call it max Q.'],
+  ['Stage 1 runs empty', 'The big first stage has burned its propellant. Now it is only dead weight.'],
+  ['Stage separation', 'The empty first stage is released and falls away.'],
+  ['Stage 2 ignites', 'The smaller upper engine takes over in near-empty space.'],
+  ['Fairing falls away', 'Above the thick air the satellite needs no shield, so the shell is dropped to save weight.'],
+  ['Satellite released', 'At orbital speed the upper stage lets the satellite go.']];
+const PZ_FACTS = [
+  ['A rocket moves by pushing against the air.', false, 'Myth. It pushes its own exhaust backwards, and the exhaust pushes it forwards. That works even better in empty space.'],
+  ['A rocket carries its own oxygen.', true, 'True. Space has no air, so nothing could burn without it.'],
+  ['There is no gravity in orbit.', false, 'Myth. Gravity up there is almost as strong as on the ground. Astronauts float because they are falling around the Earth all the time.'],
+  ['At liftoff, most of a rocket’s weight is propellant.', true, 'True. Usually more than four-fifths of it. The satellite is only a few percent.'],
+  ['To reach orbit, the main thing is to go very high.', false, 'Myth. The main thing is to go sideways at about 7.8 km every second, so you keep missing the ground.'],
+  ['Dropping empty stages helps the rest go faster.', true, 'True. The same push moves a lighter rocket much faster.']];
+function startPuzzle(){ S.part = 0; S.round = 0; S.chips = shuffle(PZ_STEPS.map((x, i) => i)); S.facts = shuffle(PZ_FACTS.map((x, i) => i)); puzzleOrder(''); }
+function puzzleOrder(msg, ok){
+  const n = S.round, all = n >= PZ_STEPS.length;
+  $('#stage').innerHTML = `<ol class="tline">${PZ_STEPS.map((s, i) => `<li class="${i < n ? 'done' : i === n ? 'now' : ''}"><span class="dot">${i < n ? '✓' : i + 1}</span><div><b>${i < n ? esc(s[0]) : i === n ? 'What happens next?' : ''}</b>${i < n ? `<small>${esc(s[1])}</small>` : ''}</div></li>`).join('')}</ol>`;
+  $('#panel').innerHTML = `<div class="card"><span class="kick">Mission 05 · Puzzle 1 of 2</span><h2>${all ? 'That is a full flight' : 'Put the flight in order'}</h2>
+      <p class="hint">${all ? 'Eight events in about ten minutes, from the pad to orbit.' : 'From the launch pad to orbit, eight things happen in a fixed order. Tap the one that comes next.'}</p>${msg ? `<div class="fb ${ok ? 'ok' : 'no'}">${esc(msg)}</div>` : ''}
+      ${all ? `<div class="row"><button class="btn gold big" id="nx" type="button">Puzzle 2: True or myth?</button></div>` : ''}</div>
+    ${all ? '' : `<div class="card"><div class="chips">${S.chips.map(i => `<button class="chip ${i < n ? 'gone' : ''}" type="button" data-i="${i}" ${i < n ? 'tabindex="-1" aria-hidden="true"' : ''}>${esc(PZ_STEPS[i][0])}</button>`).join('')}</div></div>`}`;
+  app.querySelectorAll('.chip').forEach(b => b.onclick = () => { const i = +b.dataset.i; if(i === S.round){ S.round++; sfx('pop'); puzzleOrder(PZ_STEPS[i][1], true); } else { S.miss++; sfx('no'); puzzleOrder(i < S.round ? 'That has already happened.' : `Not yet. “${PZ_STEPS[i][0]}” comes later. Think about what the rocket needs right now.`, false); } });
+  const st = $('#stage').querySelector('.now'); if(st) st.scrollIntoView({block:'nearest'});
+  const nx = $('#nx'); if(nx){ nx.onclick = () => { S.part = 1; S.round = 0; sfx('tap'); puzzleFact(); }; nx.focus({preventScroll:true}); }
+}
+function puzzleFact(ans){
+  const f = PZ_FACTS[S.facts[S.round]], done = ans != null, right = done && ans === f[1];
+  $('#stage').innerHTML = `<div class="console"><div class="claim"><small>Statement ${S.round + 1} of ${PZ_FACTS.length}</small><b>${esc(f[0])}</b></div>
+    <div class="tiles"><button class="tile tf" type="button" data-v="1" ${done ? 'disabled' : ''}><b>✔ True</b></button><button class="tile tf" type="button" data-v="0" ${done ? 'disabled' : ''}><b>✖ Myth</b></button></div></div>`;
+  $('#panel').innerHTML = `<div class="card"><span class="kick">Mission 05 · Puzzle 2 of 2</span><h2>True or myth?</h2><p class="hint">Six things people say about rockets. Some are true. Some just sound true.</p>
+      ${done ? `<div class="fb ${right ? 'ok' : 'no'}">${right ? '' : 'Not quite. '}${esc(f[2])}</div><div class="row"><button class="btn gold big" id="nx" type="button">${S.round + 1 < PZ_FACTS.length ? 'Next statement' : 'Finish'}</button></div>` : ''}</div>
+    <div class="card"><div class="meter"><b>${S.round + (done ? 1 : 0)}/${PZ_FACTS.length}</b><div class="bar3"><i style="width:${(S.round + (done ? 1 : 0)) / PZ_FACTS.length * 100}%"></i></div></div></div>`;
+  app.querySelectorAll('.tf').forEach(b => b.onclick = () => { const v = b.dataset.v === '1'; if(v === f[1]) sfx('ok'); else { S.miss++; sfx('no'); } puzzleFact(v); });
+  const nx = $('#nx'); if(nx){ nx.onclick = () => { S.round++; if(S.round >= PZ_FACTS.length) return finish(S.miss <= 1 ? 3 : S.miss <= 4 ? 2 : 1, 'You know how a flight really works.'); puzzleFact(); }; nx.focus({preventScroll:true}); }
+}
+
+/* ---------- 06: Thrust Tuner (the rocket equation) ---------- */
 const TT = {pay:1.5, need:9400, ve1:2943, ve2:3335, engKN:400};
 function tcalc(D){
   const s2dry = D.s2 * .08 + .5, s1dry = D.s1 * .08 + D.eng * .5, m0 = TT.pay + s2dry + D.s2 + s1dry + D.s1;
@@ -382,7 +423,7 @@ function thrustSvg(D, R, path){
 }
 function startThrust(){
   S.d = {s1:60, s2:6, eng:2, staged:true}; S.tries = 0;
-  $('#panel').innerHTML = `<div class="card"><span class="kick">Mission 05 · Flight design</span><h2>Reach orbit with the lightest rocket</h2>
+  $('#panel').innerHTML = `<div class="card"><span class="kick">Mission 06 · Flight design</span><h2>Reach orbit with the lightest rocket</h2>
       <p class="hint">Cargo: a 1,500 kg satellite. To stay in low Earth orbit the rocket must gain about <b>9.4 km/s</b> of speed in total: 7.8 km/s sideways, plus what gravity and air steal on the way up.</p></div>
     <div class="card tune">
       <label><span>Stage 1 propellant</span><output id="o1"></output><input id="r1" type="range" min="20" max="200" step="5" value="60"></label>
@@ -438,7 +479,7 @@ function countRender(msg, ok, solved){
   const r = CC_ROUNDS[S.round], keys = S.order[S.round];
   $('#stage').innerHTML = `<div class="console"><div class="clock"><small>Launch clock</small><b>${r.t}</b></div>
     <div class="tiles">${keys.map(k => { const n = CC_NOM[k], bad = k === r.k; return `<button class="tile ${solved && bad ? 'hit' : ''}" type="button" data-k="${k}" ${solved ? 'disabled' : ''}><small>${esc(n[0])}</small><b>${esc(bad ? r.v : n[1])}</b><span>Limit: ${esc(n[2])}</span></button>`; }).join('')}</div></div>`;
-  $('#panel').innerHTML = `<div class="card"><span class="kick">Mission 06 · Check ${S.round + 1} of ${CC_ROUNDS.length}</span><h2>Go or no-go?</h2>
+  $('#panel').innerHTML = `<div class="card"><span class="kick">Mission 07 · Check ${S.round + 1} of ${CC_ROUNDS.length}</span><h2>Go or no-go?</h2>
       <p class="hint">You are the launch director. Compare each reading with its limit. If one is outside its limit, tap it to call a hold. If all are fine, say go.</p>${msg ? `<div class="fb ${ok ? 'ok' : 'no'}">${esc(msg)}</div>` : ''}
       <div class="row">${solved ? `<button class="btn gold big" id="nx" type="button">${S.round + 1 < CC_ROUNDS.length ? 'Next check' : 'Finish the count'}</button>` : `<button class="btn gold big" id="allgo" type="button">✔ All go</button>`}</div></div>
     <div class="card"><div class="meter"><b>${S.round + (solved ? 1 : 0)}/${CC_ROUNDS.length}</b><div class="bar3"><i style="width:${(S.round + (solved ? 1 : 0)) / CC_ROUNDS.length * 100}%"></i></div></div>
@@ -475,7 +516,7 @@ function startOrbit(){ S.round = 0; S.rounds = shuffle(ORB_ROUNDS.map((r, i) => 
 function orbitRender(msg, ok, solved, pick){
   const r = ORB_ROUNDS[S.rounds[S.round]];
   $('#stage').innerHTML = orbitSvg(pick, ok);
-  $('#panel').innerHTML = `<div class="card"><span class="kick">Mission 07 · Satellite ${S.round + 1} of ${ORB_ROUNDS.length}</span><h2>${esc(r.job)}</h2><p>${esc(r.need)}</p><p class="hint">Which orbit do you send it to? Tap a ring, or pick below.</p>${msg ? `<div class="fb ${ok ? 'ok' : 'no'}">${esc(msg)}</div>` : ''}
+  $('#panel').innerHTML = `<div class="card"><span class="kick">Mission 08 · Satellite ${S.round + 1} of ${ORB_ROUNDS.length}</span><h2>${esc(r.job)}</h2><p>${esc(r.need)}</p><p class="hint">Which orbit do you send it to? Tap a ring, or pick below.</p>${msg ? `<div class="fb ${ok ? 'ok' : 'no'}">${esc(msg)}</div>` : ''}
       ${solved ? `<div class="fact"><b>Real mission:</b> ${esc(r.real)}</div><div class="row"><button class="btn gold big" id="nx" type="button">${S.round + 1 < ORB_ROUNDS.length ? 'Next satellite' : 'Finish'}</button></div>` : ''}</div>
     <div class="card olist">${Object.entries(ORB).map(([k, o]) => `<button class="ochip ${solved && k === r.a ? 'ok' : ''}" type="button" data-k="${k}" ${solved ? 'disabled' : ''}><b>${esc(o.n)}</b><span>${esc(o.d)}</span></button>`).join('')}</div>`;
   const choose = k => { if(solved || S.finished) return; if(k === r.a){ sfx('ok'); orbitRender(`Right. ${ORB[k].n}: ${ORB[k].d}`, true, true, k); } else { S.miss++; sfx('no'); orbitRender(`Not ${ORB[k].n.toLowerCase()}. ${ORB[k].no}`, false, false, k); } };
@@ -485,6 +526,6 @@ function orbitRender(msg, ok, solved, pick){
 }
 
 /* test hook (only with ?test in the URL): read-only state */
-if(/[?&]test\b/.test(location.search)) window.__rlTest = () => S && {mode:S.mode, t:S.t, placed:[...S.placed], visited:[...S.visited], miss:S.miss, round:S.round, job:S.rounds[S.round] || null, need:S.mode === 'stack' ? nextNeeded() : null, fault:S.mode === 'count' ? CC_ROUNDS[S.round] && CC_ROUNDS[S.round].k : null, orbit:S.mode === 'orbit' && S.rounds.length ? ORB_ROUNDS[S.rounds[S.round]].a : null, finished:!!S.finished, launchT:S.launch ? S.launch.T : null};
+if(/[?&]test\b/.test(location.search)) window.__rlTest = () => S && {mode:S.mode, t:S.t, placed:[...S.placed], visited:[...S.visited], miss:S.miss, round:S.round, job:S.rounds[S.round] || null, need:S.mode === 'stack' ? nextNeeded() : null, pz:S.mode === 'puzzle' ? {part:S.part, round:S.round, truth:S.part ? PZ_FACTS[S.facts[S.round]][1] : null} : null, fault:S.mode === 'count' ? CC_ROUNDS[S.round] && CC_ROUNDS[S.round].k : null, orbit:S.mode === 'orbit' && S.rounds.length ? ORB_ROUNDS[S.rounds[S.round]].a : null, finished:!!S.finished, launchT:S.launch ? S.launch.T : null};
 title();
 })();

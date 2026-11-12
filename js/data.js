@@ -7,9 +7,9 @@ GE.ROOT_CAUSE_URL = 'root-cause/';
 GE.WORLD_GAMES = {
   rocket:{id:'liftoff', name:'Liftoff Lab', url:'rocket/', key:'rocket-lab', subject:'Rocket parts \u00b7 Flight engineering', unitName:'mission',
     desc:'Explode a two-stage rocket and learn all 13 parts, then fly it like an engineer: tune thrust with the rocket equation, run the countdown and pick the right orbit.',
-    units:{explore:'Explode It', name:'Name Drop', job:'What\u2019s Its Job?', stack:'Stack & Send', thrust:'Thrust Tuner', count:'Countdown Crew', orbit:'Orbit Desk'},
+    units:{explore:'Explode It', name:'Name Drop', job:'What\u2019s Its Job?', stack:'Stack & Send', puzzle:'Flight Puzzle', thrust:'Thrust Tuner', count:'Countdown Crew', orbit:'Orbit Desk'},
     advanced:['Thrust Tuner: design a rocket with the real rocket equation','Countdown Crew: make go / no-go calls from live launch data','Orbit Desk: match weather, crop and village-internet satellites to their orbits'],
-    learn:['13 rocket parts and what each one does','Why staging works: the rocket equation','Thrust against weight at liftoff','Reading data to make a safe launch call','Which orbit suits which satellite job'], badge:'liftoff'},
+    learn:['13 rocket parts and what each one does','The order of a real flight, and common rocket myths','Why staging works: the rocket equation','Thrust against weight at liftoff','Reading data to make a safe launch call','Which orbit suits which satellite job'], badge:'liftoff'},
   'ai-remote':{id:'village', name:'Village Lab', url:'village/', key:'village-lab', subject:'Junior scientist \u00b7 Design thinking', unitName:'project',
     desc:'Listen to a villager, define the real problem, build a fix from sensors and AI, field-test it and pitch it. Then train an AI the fair way in the Data Detective lab.',
     units:{farm:'Thirsty Fields', ajji:'Pill Panic', leaf:'Leaf Spot Mystery', jumbo:'Night Jumbo Alert', school:'Teacher-less Tuesday', well:'Well, Well, Well', leafai:'Data Detective: Leaf Doctor', jumboai:'Data Detective: Jumbo Watch', voiceai:'Data Detective: Voice Helper'},
